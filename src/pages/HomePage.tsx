@@ -163,8 +163,8 @@ export function HomePage({ onOpenAuth }: HomePageProps) {
       const start = new Date(startDate);
       const diffMs = d.getTime() - start.getTime();
       const diffDays = diffMs / (1000 * 60 * 60 * 24);
-      if (diffDays > 4) {
-        setDateMessage('End date can be at most 4 days after start date.');
+      if (diffDays > 3) {
+        setDateMessage('End date can be at most 3 days after start date.');
         setEndDate('');
         return;
       }
