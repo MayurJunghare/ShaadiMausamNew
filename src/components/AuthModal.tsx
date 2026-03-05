@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -14,7 +15,34 @@ export function AuthModal({ isOpen, onClose, mode: initialMode }: AuthModalProps
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<'idle' | 'checking' | 'ok' | 'fail'>('idle');
   const { signIn, signUp } = useAuth();
+  const navigate = useNavigate();
+
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+
+  const checkConnection = async () => {
+    if (!supabaseUrl) {
+      setConnectionStatus('fail');
+      return;
+    }
+    setConnectionStatus('checking');
+    try {
+      const res = await fetch(`${supabaseUrl}/auth/v1/health`);
+      setConnectionStatus(res.ok ? 'ok' : 'fail');
+    } catch {
+      setConnectionStatus('fail');
+    }
+  };
+
+  // When modal opens, show the correct form (login vs signup)
+  useEffect(() => {
+    if (isOpen) {
+      setMode(initialMode);
+      setError('');
+      setConnectionStatus('idle');
+    }
+  }, [isOpen, initialMode]);
 
   if (!isOpen) return null;
 
@@ -29,14 +57,26 @@ export function AuthModal({ isOpen, onClose, mode: initialMode }: AuthModalProps
         : await signUp(email, password);
 
       if (error) {
-        setError(error.message);
+        // Supabase returns "Invalid login credentials" for wrong email/password or unconfirmed email
+        const message = error.message === 'Invalid login credentials'
+          ? 'Wrong email or password. Try again or sign up if you don\'t have an account.'
+          : error.message;
+        setError(message);
       } else {
         onClose();
         setEmail('');
         setPassword('');
+        navigate('/');
       }
     } catch (err) {
-      setError('An unexpected error occurred');
+      const msg = err instanceof Error ? err.message : 'Network error';
+      if (msg === 'Failed to fetch' || msg.toLowerCase().includes('fetch')) {
+        setError(
+          'Cannot reach the server. Check your internet, ensure the Supabase project is not paused (Dashboard → Project Settings), and try again.'
+        );
+      } else {
+        setError('Something went wrong. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -65,6 +105,17 @@ export function AuthModal({ isOpen, onClose, mode: initialMode }: AuthModalProps
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">
             {error}
+          </div>
+        )}
+
+        {connectionStatus === 'ok' && (
+          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-4 text-sm">
+            Supabase is reachable. If sign-in still fails, check email/password or try signing up.
+          </div>
+        )}
+        {connectionStatus === 'fail' && (
+          <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg mb-4 text-sm">
+            Cannot reach Supabase. Restore a paused project in Dashboard → your project → Settings, or check your network.
           </div>
         )}
 
@@ -111,14 +162,24 @@ export function AuthModal({ isOpen, onClose, mode: initialMode }: AuthModalProps
           </button>
         </form>
 
-        <div className="mt-6 text-center">
-          <p className="text-gray-600 text-sm sm:text-base">
+        <div className="mt-6 space-y-3">
+          <p className="text-center text-gray-600 text-sm sm:text-base">
             {mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
             <button
               onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
               className="text-gold-600 font-semibold hover:text-gold-700 active:text-gold-800 transition-colors touch-manipulation p-1 -m-1"
             >
               {mode === 'login' ? 'Sign up' : 'Sign in'}
+            </button>
+          </p>
+          <p className="text-center">
+            <button
+              type="button"
+              onClick={checkConnection}
+              disabled={connectionStatus === 'checking'}
+              className="text-gray-500 text-xs hover:text-gray-700 underline disabled:opacity-50"
+            >
+              {connectionStatus === 'checking' ? 'Checking…' : 'Check connection to Supabase'}
             </button>
           </p>
         </div>

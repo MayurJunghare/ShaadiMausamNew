@@ -1,26 +1,20 @@
+import { Link } from 'react-router-dom';
 import { Cloud, Facebook, Twitter, Instagram, Linkedin, Mail, MapPin } from 'lucide-react';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
-
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
 
   return (
     <footer className="bg-gray-900 text-gray-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           <div>
-            <div className="flex items-center space-x-2 mb-4">
+            <Link to="/" className="flex items-center space-x-2 mb-4">
               <Cloud className="text-gold-400" size={32} />
               <span className="text-2xl font-heading font-bold text-white">
                 ShaadiMausam
               </span>
-            </div>
+            </Link>
             <p className="text-gray-400 mb-4">
               Your trusted partner for weather-perfect wedding planning across India.
             </p>
@@ -38,36 +32,29 @@ export function Footer() {
             <h3 className="text-white font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <button
-                  onClick={() => scrollToSection('hero')}
-                  className="hover:text-gold-400 transition-colors"
-                >
+                <Link to="/" className="hover:text-gold-400 transition-colors">
                   Home
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => scrollToSection('features')}
-                  className="hover:text-gold-400 transition-colors"
-                >
+                <Link to="/#features" className="hover:text-gold-400 transition-colors">
                   Features
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => scrollToSection('how-it-works')}
-                  className="hover:text-gold-400 transition-colors"
-                >
+                <Link to="/#how-it-works" className="hover:text-gold-400 transition-colors">
                   How It Works
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => scrollToSection('demo')}
-                  className="hover:text-gold-400 transition-colors"
-                >
+                <Link to="/#demo" className="hover:text-gold-400 transition-colors">
                   Demo
-                </button>
+                </Link>
+              </li>
+              <li>
+                <Link to="/pricing" className="hover:text-gold-400 transition-colors">
+                  Pricing
+                </Link>
               </li>
             </ul>
           </div>

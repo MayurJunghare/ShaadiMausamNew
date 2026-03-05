@@ -20,7 +20,7 @@ const plans: PricingPlan[] = [
     priceLabel: 'FREE',
     subtitle: 'Let users try before buying',
     features: [
-      '3-day forecast',
+      '3 Searches per day',
       'Basic suitability score',
       '1 city, 1 date',
       'See what you\'ll get!',
@@ -36,11 +36,10 @@ const plans: PricingPlan[] = [
     popular: true,
     perfectFor: 'Perfect for: 95% of couples',
     features: [
-      '10-day accurate forecast',
+      '10 Searches per day',
       'Historical weather analysis',
       'AI venue recommendations',
       'Downloadable PDF report',
-      'Compare up to 3 dates',
       'Email support',
       'Valid until 1 week after wedding',
     ],
@@ -52,7 +51,7 @@ const plans: PricingPlan[] = [
     name: 'Premium Wedding Package',
     price: '1,999',
     priceLabel: 'ONE-TIME PAYMENT',
-    perfectFor: 'Perfect for: Luxury weddings',
+    perfectFor: 'Perfect for: Wedding Planners & Event Managers',
     features: [
       'Everything in Basic',
       'Unlimited date comparisons',

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Cloud, Sun, CloudRain, Wind } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -47,9 +48,12 @@ export function Hero({ onOpenAuth }: HeroProps) {
         </p>
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-stretch sm:items-center">
           {user ? (
-            <button className="bg-gradient-to-r from-gold-500 to-gold-600 text-white px-8 py-4 rounded-lg text-base sm:text-lg font-semibold hover:from-gold-600 hover:to-gold-700 transition-all transform hover:scale-105 active:scale-95 shadow-xl min-h-[48px] touch-manipulation">
+            <Link
+              to="/"
+              className="inline-flex bg-gradient-to-r from-gold-500 to-gold-600 text-white px-8 py-4 rounded-lg text-base sm:text-lg font-semibold hover:from-gold-600 hover:to-gold-700 transition-all transform hover:scale-105 active:scale-95 shadow-xl min-h-[48px] touch-manipulation items-center justify-center"
+            >
               Go to Dashboard
-            </button>
+            </Link>
           ) : (
             <>
               <button
