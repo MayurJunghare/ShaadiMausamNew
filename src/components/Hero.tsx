@@ -16,7 +16,6 @@ export function Hero({ onOpenAuth }: HeroProps) {
         loop
         muted
         playsInline
-        poster="/Planning.jpg"
         className="absolute inset-0 w-full h-full object-cover"
       >
         <source src="/Video.mp4" type="video/mp4" />
