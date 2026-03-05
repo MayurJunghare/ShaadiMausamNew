@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Cloud, Loader2, MapPin, Send, Sparkles } from 'lucide-react';
+import { Calendar, Cloud, MapPin, Send, Sparkles } from 'lucide-react';
 import { Navbar } from '../components/Navbar';
 import { FaqSection } from '../components/FaqSection';
 import { useAuth } from '../contexts/AuthContext';
@@ -112,6 +112,7 @@ export function HomePage({ onOpenAuth }: HomePageProps) {
   const [placesLoadError, setPlacesLoadError] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analyzeError, setAnalyzeError] = useState('');
+  const [loadingDots, setLoadingDots] = useState('.');
   const locationInputRef = useRef<HTMLInputElement>(null);
   const autocompleteInited = useRef(false);
 
@@ -208,6 +209,15 @@ export function HomePage({ onOpenAuth }: HomePageProps) {
       })
       .catch(() => setPlacesLoadError(true));
   }, []);
+
+  /* Animated dots when analyzing */
+  useEffect(() => {
+    if (!isAnalyzing) return;
+    const t = setInterval(() => {
+      setLoadingDots((d) => (d.length >= 3 ? '.' : d + '.'));
+    }, 400);
+    return () => clearInterval(t);
+  }, [isAnalyzing]);
 
   const handleUseCurrentLocation = () => {
     setLocationError('');
@@ -446,6 +456,39 @@ export function HomePage({ onOpenAuth }: HomePageProps) {
           </div>
         </div>
 
+        {/* Loading card: dolls + message when analyzing */}
+        {isAnalyzing && (
+          <div className="mb-10 flex justify-center">
+            <div className="w-full max-w-md rounded-2xl bg-gradient-to-br from-pink-50 via-rose-50 to-amber-50 p-8 shadow-lg border border-pink-100 text-center">
+              <div className="flex justify-center items-end mb-6 h-24">
+                <svg viewBox="0 0 200 100" className="w-48 h-24 flex-shrink-0" aria-hidden>
+                  {/* Girl (left): head, dress, arm toward boy, legs */}
+                  <g className="animate-doll-walk-left" style={{ transformOrigin: '50px 50px' }}>
+                    <circle cx="50" cy="22" r="12" fill="#f9a8d4" stroke="#be185d" strokeWidth="1.5" />
+                    <path d="M38 36 L42 72 L58 72 L62 36 Z" fill="#ec4899" stroke="#be185d" strokeWidth="1.2" />
+                    <line x1="62" y1="48" x2="82" y2="44" stroke="#be185d" strokeWidth="2" strokeLinecap="round" />
+                    <line x1="42" y1="50" x2="35" y2="58" stroke="#be185d" strokeWidth="2" strokeLinecap="round" />
+                    <line x1="42" y1="72" x2="38" y2="88" stroke="#7c2d12" strokeWidth="2" strokeLinecap="round" />
+                    <line x1="58" y1="72" x2="62" y2="88" stroke="#7c2d12" strokeWidth="2" strokeLinecap="round" />
+                  </g>
+                  {/* Boy (right): head, shirt, arm toward girl, legs */}
+                  <g className="animate-doll-walk-right" style={{ transformOrigin: '150px 50px' }}>
+                    <circle cx="150" cy="22" r="12" fill="#93c5fd" stroke="#1d4ed8" strokeWidth="1.5" />
+                    <rect x="138" y="34" width="24" height="38" rx="4" fill="#3b82f6" stroke="#1d4ed8" strokeWidth="1.2" />
+                    <line x1="138" y1="48" x2="118" y2="44" stroke="#1d4ed8" strokeWidth="2" strokeLinecap="round" />
+                    <line x1="162" y1="50" x2="165" y2="58" stroke="#1d4ed8" strokeWidth="2" strokeLinecap="round" />
+                    <line x1="142" y1="72" x2="138" y2="88" stroke="#78350f" strokeWidth="2" strokeLinecap="round" />
+                    <line x1="158" y1="72" x2="162" y2="88" stroke="#78350f" strokeWidth="2" strokeLinecap="round" />
+                  </g>
+                </svg>
+              </div>
+              <p className="text-gray-700 text-sm sm:text-base">
+                🌤️ Running AI weather model{loadingDots} This may take up to 60 seconds
+              </p>
+            </div>
+          </div>
+        )}
+
         <div className="text-center">
           <button
             type="button"
@@ -458,10 +501,7 @@ export function HomePage({ onOpenAuth }: HomePageProps) {
             disabled={!startDate || !location || isAnalyzing}
           >
             {isAnalyzing ? (
-              <>
-                <Loader2 size={22} className="animate-spin" />
-                Analyzing weather…
-              </>
+              'Analyzing…'
             ) : (
               <>
                 <Sparkles size={22} />

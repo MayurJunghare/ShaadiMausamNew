@@ -40,3 +40,19 @@
   border-radius: 0.5rem;
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
+
+/* Loading card: dolls walking toward each other */
+@keyframes doll-walk-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(48px); }
+}
+@keyframes doll-walk-right {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-48px); }
+}
+.animate-doll-walk-left {
+  animation: doll-walk-left 2s ease-in-out infinite alternate;
+}
+.animate-doll-walk-right {
+  animation: doll-walk-right 2s ease-in-out infinite alternate;
+}
