@@ -170,43 +170,26 @@ function parseRecommendations(text: string): Recommendations {
  * Get AI recommendations for the wedding based on weather and location (GPT-4o).
  */
 export async function getRecommendations(
-  weatherData: WeatherData,
+  weatherData: any,
   location: string,
   weddingDate: string,
-  suitabilityScore?: number
+  suitabilityScore: number
 ): Promise<Recommendations> {
-  const apiKey = import.meta.env.VITE_OPENAI_API_KEY as string | undefined;
-  const key = apiKey?.trim();
-
-  if (!key) {
-    console.warn('OpenAI API key missing. Set VITE_OPENAI_API_KEY in .env and restart the dev server.');
-    return DEFAULT_RECOMMENDATIONS;
-  }
-
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://api.shaadimausam.in';
+  
   try {
-    const client = new OpenAI({ apiKey: key, dangerouslyAllowBrowser: true });
-    const prompt = buildPrompt(weatherData, location, weddingDate, suitabilityScore);
-
-    const completion = await client.chat.completions.create({
-      model: 'gpt-4o',
-      messages: [{ role: 'user', content: prompt }],
-      max_tokens: 6144,
-      response_format: { type: 'json_object' },
+    const response = await fetch(`${baseUrl}/recommendations`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ weatherData, location, weddingDate, suitabilityScore })
     });
-
-    const rawContent = completion.choices[0]?.message?.content;
-    // Handle both string and array (multimodal) response
-    let text = '';
-    if (typeof rawContent === 'string') {
-      text = rawContent;
-    } else if (Array.isArray(rawContent)) {
-      const parts = rawContent as Array<{ text?: string } | unknown>;
-      const textPart = parts.find((p: unknown) => p && typeof p === 'object' && 'text' in p);
-      text = (textPart as { text?: string } | undefined)?.text ?? '';
-    }
-    return parseRecommendations(text);
-  } catch (err) {
-    console.warn('OpenAI API failed, using defaults:', err);
+    
+    if (!response.ok) throw new Error('Failed to get recommendations');
+    
+    const data = await response.json();
+    return JSON.parse(data.recommendations);
+  } catch (error) {
+    console.error('Recommendations failed:', error);
     return DEFAULT_RECOMMENDATIONS;
   }
 }
