@@ -11,7 +11,7 @@ import type {
 } from '../types/weather';
 import { geocodeAddress } from './geocodeService';
 
-const BASE_URL = (import.meta.env.VITE_BACKEND_API_URL as string) || 'http://34.100.195.61:8888';
+const BASE_URL = (import.meta.env.VITE_API_BASE_URL as string) || 'https://api.shaadimausam.in';
 const OPEN_METEO_ARCHIVE_BASE = 'https://archive-api.open-meteo.com/v1/archive';
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
