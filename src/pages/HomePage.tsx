@@ -332,34 +332,41 @@ export function HomePage({ onOpenAuth }: HomePageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-cream-50">
+    <div className="min-h-screen page-cream-texture">
       <Navbar onOpenAuth={onOpenAuth} variant="app" />
       <main className="pt-20 pb-16 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
         <DecorativeFrame>
-          <div className="text-center mb-10">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-maroon-500 mb-2 text-center">
-              <span className="block sm:inline-block whitespace-nowrap">
-                <span className="relative">
-                  <span className="text-maroon-500">W</span>
-                  <span className="absolute -top-1 -right-2 opacity-90">
-                    <Cloud className="text-maroon-400" size={28} />
+          {/* Scattered petals near title */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden z-0" aria-hidden>
+            <span className="absolute top-8 left-[10%] w-3 h-4 rounded-full bg-pink-200/40 transform -rotate-12" />
+            <span className="absolute top-14 right-[15%] w-4 h-3 rounded-full bg-rose-200/35 transform rotate-6" />
+            <span className="absolute top-24 left-[20%] w-2 h-3 rounded-full bg-pink-100/50 transform -rotate-6" />
+            <span className="absolute top-12 right-[8%] w-3 h-3 rounded-full bg-rose-100/40" />
+          </div>
+          <div className="text-center mb-10 relative z-10">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-maroon-600 mb-2 text-center">
+              <span className="block whitespace-nowrap">
+                <span className="relative inline-block">
+                  <span className="text-maroon-600">W</span>
+                  <span className="absolute -top-1 -right-2 opacity-90" aria-hidden>
+                    <Cloud className="text-maroon-500" size={28} />
                   </span>
                 </span>
                 edding
               </span>
-              <span className="block sm:inline-block"> Weather Planner</span>
+              <span className="block">Weather Planner</span>
             </h1>
-            <p className="text-gray-600 text-base sm:text-lg max-w-2xl mx-auto">
+            <p className="text-maroon-700/90 text-base sm:text-lg max-w-2xl mx-auto">
               Get personalized weather insights and recommendations for your perfect wedding day.
             </p>
           </div>
 
           {/* Single card: Wedding Date + Wedding Location */}
-          <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100 mb-10">
+          <div className="bg-white rounded-2xl p-6 shadow-lg border border-amber-100/60 mb-10 relative z-10">
             {/* Wedding Date section */}
             <div className="flex items-center gap-2 mb-2">
-              <Calendar className="text-maroon-500" size={24} />
-              <h2 className="text-xl font-heading font-bold text-gray-900">Wedding Date</h2>
+              <Calendar className="text-maroon-600 shrink-0" size={24} />
+              <h2 className="text-xl font-heading font-bold text-maroon-700">Wedding Date</h2>
             </div>
             <p className="text-gray-600 text-sm mb-1">Select your wedding date or date range.</p>
             <p className="text-gray-500 text-sm mb-4">Forecast is available till {maxForecastLabel}. Format: dd-mm-yyyy</p>
@@ -407,8 +414,8 @@ export function HomePage({ onOpenAuth }: HomePageProps) {
 
             {/* Wedding Location section */}
             <div className="flex items-center gap-2 mb-2 pt-4 border-t border-gray-100">
-              <MapPin className="text-maroon-500" size={24} />
-              <h2 className="text-xl font-heading font-bold text-gray-900">Wedding Location</h2>
+              <MapPin className="text-maroon-600 shrink-0" size={24} />
+              <h2 className="text-xl font-heading font-bold text-maroon-700">Wedding Location</h2>
             </div>
             <p className="text-gray-600 text-sm mb-4">Choose your wedding venue location.</p>
             <button
@@ -493,13 +500,13 @@ export function HomePage({ onOpenAuth }: HomePageProps) {
           </div>
         )}
 
-        <div className="text-center">
+        <div className="text-center relative z-10">
           <button
             type="button"
             onClick={handleAnalyze}
-            className={`inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-semibold text-lg transition-all shadow-md min-h-[52px] border-2 ${
+            className={`inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-semibold text-lg transition-all min-h-[52px] border-2 ${
               startDate && location && !isAnalyzing
-                ? 'bg-gradient-to-r from-gold-400 via-gold-500 to-gold-600 hover:from-gold-500 hover:via-gold-600 hover:to-gold-700 text-white shadow-lg border-gold-600/80'
+                ? 'text-maroon-800 bg-gradient-to-b from-amber-300 via-gold-500 to-amber-600 hover:from-amber-400 hover:via-gold-600 hover:to-amber-700 shadow-lg shadow-amber-900/20 border-amber-700/60'
                 : 'bg-gray-300 hover:bg-gray-400 text-gray-800 cursor-not-allowed opacity-80 border-gray-400'
             }`}
             disabled={!startDate || !location || isAnalyzing}
