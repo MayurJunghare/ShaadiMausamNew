@@ -31,8 +31,8 @@ const plans: PricingPlan[] = [
   },
   {
     name: 'Basic Wedding Forecast',
-    price: '999',
-    priceLabel: 'ONE-TIME PAYMENT',
+    price: '1,999',
+    priceLabel: 'ONETIME',
     popular: true,
     perfectFor: 'Perfect for: 95% of couples',
     features: [
@@ -45,12 +45,12 @@ const plans: PricingPlan[] = [
     ],
     gradient: 'from-gold-50 to-gold-100',
     buttonStyle: 'bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-white',
-    buttonText: 'Get Started - ₹999',
+    buttonText: 'Get Started - ₹1,999',
   },
   {
     name: 'Premium Wedding Package',
-    price: '1,999',
-    priceLabel: 'ONE-TIME PAYMENT',
+    price: '5,999',
+    priceLabel: 'ANNUAL',
     perfectFor: 'Perfect for: Wedding Planners & Event Managers',
     features: [
       'Everything in Basic',
@@ -64,7 +64,7 @@ const plans: PricingPlan[] = [
     ],
     gradient: 'from-maroon-50 to-rose-50',
     buttonStyle: 'bg-gradient-to-r from-maroon-500 to-maroon-600 hover:from-maroon-600 hover:to-maroon-700 text-white',
-    buttonText: 'Get Started - ₹1,999',
+    buttonText: 'Get Started - ₹5,999',
   },
 ];
 
@@ -145,12 +145,6 @@ export function Pricing({ onOpenAuth }: PricingProps) {
               </button>
             </div>
           ))}
-        </div>
-
-        <div className="text-center mt-10 md:mt-12">
-          <p className="text-gray-600 text-sm md:text-base">
-            All paid plans are one-time payments with no recurring charges. Access valid until 1 week after your wedding date.
-          </p>
         </div>
       </div>
     </section>
