@@ -18,15 +18,15 @@ function flowerConfig(index: number) {
 const FLOWERS = Array.from({ length: FLOWER_COUNT }, (_, i) => flowerConfig(i));
 
 const sizeClasses = {
-  sm: 'w-2 h-2',
-  md: 'w-3 h-3',
-  lg: 'w-4 h-4',
+  sm: 'w-5 h-5',
+  md: 'w-6 h-6',
+  lg: 'w-8 h-8',
 };
 
 const colorClasses = {
-  yellow: 'bg-yellow-400/60',
-  orange: 'bg-orange-400/60',
-  amber: 'bg-amber-300/60',
+  yellow: 'bg-yellow-400/80',
+  orange: 'bg-orange-400/80',
+  amber: 'bg-amber-300/80',
 };
 
 export function FallingFlowers() {

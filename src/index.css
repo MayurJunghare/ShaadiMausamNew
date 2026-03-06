@@ -61,11 +61,11 @@
 @keyframes flower-fall {
   0% {
     transform: translateY(-10%) translateX(0) rotate(0deg);
-    opacity: 0.6;
+    opacity: 0.85;
   }
   100% {
     transform: translateY(110vh) translateX(15px) rotate(180deg);
-    opacity: 0.25;
+    opacity: 0.45;
   }
 }
 .animate-flower-fall {
