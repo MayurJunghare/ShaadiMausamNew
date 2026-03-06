@@ -20,6 +20,13 @@ function formatDateLabel(isoDate: string): string {
   return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
 }
 
+function normalizeIsoDate(input: unknown): string {
+  const s = typeof input === 'string' ? input : '';
+  // Accept either YYYY-MM-DD or ISO strings like YYYY-MM-DDTHH:mm:ssZ
+  const match = s.match(/\d{4}-\d{2}-\d{2}/);
+  return match ? match[0] : s.slice(0, 10);
+}
+
 /**
  * Fetch forecast from Earth2 backend for up to 10 days starting at `date`.
  * Used for days that are 0–15 days ahead.
@@ -30,7 +37,9 @@ async function getEarth2Forecast(
   date: string,
   daysToShow: number = 4
 ): Promise<WeatherData> {
-  const res = await axios.post<Earth2ForecastResponse>(`${BASE_URL}/earth2/forecast`, {
+  const url = `${BASE_URL}/earth2/forecast`;
+  console.log('[weatherService] Earth2 request', { url, latitude, longitude, date, days: 10 });
+  const res = await axios.post<Earth2ForecastResponse>(url, {
     latitude,
     longitude,
     date,
@@ -38,48 +47,69 @@ async function getEarth2Forecast(
   });
 
   const data = res.data;
-  const weddingDay = data.forecast?.find((f) => f.date === date) || data.forecast?.[0];
+  const rawForecast: unknown = (data as any)?.forecast;
+  const forecastArray: any[] = Array.isArray(rawForecast) ? rawForecast : [];
+  console.log('[weatherService] Earth2 response meta', {
+    source: (data as any)?.source,
+    temperature: (data as any)?.temperature,
+    forecastType: Array.isArray(rawForecast) ? 'array' : typeof rawForecast,
+    forecastLen: forecastArray.length,
+    first: forecastArray[0],
+  });
+
+  const weddingDay = forecastArray.find((f) => normalizeIsoDate(f?.date) === date) || forecastArray[0];
 
   const sliceCount = Math.max(1, Math.min(4, Math.floor(daysToShow) || 1));
 
-  const dailyForecasts: DailyForecast[] = (data.forecast || []).slice(0, sliceCount).map((f) => {
-    const label = formatDateLabel(f.date);
+  const dailyForecasts: DailyForecast[] = forecastArray.slice(0, sliceCount).map((f) => {
+    const iso = normalizeIsoDate(f?.date);
+    const label = formatDateLabel(iso);
     return {
-      date: f.date,
+      date: iso,
       day: label.split(',')[0],
       dateShort: label.replace(/^[^,]+, /, ''),
-      tempMin: f.temperature_min_c,
-      tempMax: f.temperature_max_c,
-      rainChance: f.precipitation_mm > 0 ? Math.min(100, Math.round(f.precipitation_mm * 10)) : 0,
-      wind: Math.round(f.wind_speed_kmh),
-      humidity: f.humidity_percent,
-      summary: f.condition || 'Unknown',
+      tempMin: Number(f?.temperature_min_c ?? f?.temperature_min ?? f?.tempMin ?? 0),
+      tempMax: Number(f?.temperature_max_c ?? f?.temperature_max ?? f?.tempMax ?? 0),
+      rainChance:
+        Number(f?.precipitation_mm ?? f?.precipitation ?? 0) > 0
+          ? Math.min(100, Math.round(Number(f?.precipitation_mm ?? f?.precipitation ?? 0) * 10))
+          : 0,
+      wind: Math.round(Number(f?.wind_speed_kmh ?? f?.wind ?? 0)),
+      humidity: Math.round(Number(f?.humidity_percent ?? f?.humidity ?? 0)),
+      summary: String(f?.condition ?? 'Unknown'),
       source: 'Pangu24 AI',
     };
   });
 
   if (dailyForecasts.length === 0 && weddingDay) {
-    const label = formatDateLabel(weddingDay.date);
+    const iso = normalizeIsoDate((weddingDay as any)?.date);
+    const label = formatDateLabel(iso);
     dailyForecasts.push({
-      date: weddingDay.date,
+      date: iso,
       day: label.split(',')[0],
       dateShort: label.replace(/^[^,]+, /, ''),
-      tempMin: weddingDay.temperature_min_c,
-      tempMax: weddingDay.temperature_max_c,
-      rainChance: weddingDay.precipitation_mm > 0 ? Math.min(100, Math.round(weddingDay.precipitation_mm * 10)) : 0,
-      wind: Math.round(weddingDay.wind_speed_kmh),
-      humidity: weddingDay.humidity_percent,
-      summary: weddingDay.condition || 'Unknown',
+      tempMin: Number((weddingDay as any)?.temperature_min_c ?? (weddingDay as any)?.temperature_min ?? 0),
+      tempMax: Number((weddingDay as any)?.temperature_max_c ?? (weddingDay as any)?.temperature_max ?? 0),
+      rainChance:
+        Number((weddingDay as any)?.precipitation_mm ?? (weddingDay as any)?.precipitation ?? 0) > 0
+          ? Math.min(
+              100,
+              Math.round(Number((weddingDay as any)?.precipitation_mm ?? (weddingDay as any)?.precipitation ?? 0) * 10)
+            )
+          : 0,
+      wind: Math.round(Number((weddingDay as any)?.wind_speed_kmh ?? (weddingDay as any)?.wind ?? 0)),
+      humidity: Math.round(Number((weddingDay as any)?.humidity_percent ?? (weddingDay as any)?.humidity ?? 0)),
+      summary: String((weddingDay as any)?.condition ?? 'Unknown'),
       source: 'Pangu24 AI',
     });
   }
 
   return {
-    temperature: data.temperature ?? weddingDay?.temperature_c ?? 0,
-    precipitation: data.precipitation ?? weddingDay?.precipitation_mm ?? 0,
-    humidity: data.humidity ?? weddingDay?.humidity_percent ?? 0,
-    wind: data.wind ?? weddingDay?.wind_speed_kmh ?? 0,
-    condition: data.condition || weddingDay?.condition || 'Unknown',
+    temperature: Number((data as any)?.temperature ?? (weddingDay as any)?.temperature_c ?? (weddingDay as any)?.temperature ?? 0),
+    precipitation: Number((data as any)?.precipitation ?? (weddingDay as any)?.precipitation_mm ?? (weddingDay as any)?.precipitation ?? 0),
+    humidity: Number((data as any)?.humidity ?? (weddingDay as any)?.humidity_percent ?? (weddingDay as any)?.humidity ?? 0),
+    wind: Number((data as any)?.wind ?? (weddingDay as any)?.wind_speed_kmh ?? (weddingDay as any)?.wind ?? 0),
+    condition: String((data as any)?.condition ?? (weddingDay as any)?.condition ?? 'Unknown'),
     dailyForecasts: dailyForecasts.length > 0 ? dailyForecasts : [createFallbackDaily(date)],
   };
 }
@@ -216,6 +246,15 @@ export async function getWeatherForecast(
   const roundedLat = Math.round(latitude * 10) / 10;
   const roundedLon = Math.round(longitude * 10) / 10;
 
+  console.log('[weatherService] getWeatherForecast', {
+    latitude,
+    longitude,
+    roundedLat,
+    roundedLon,
+    startDate,
+    daysToShow,
+  });
+
   const start = new Date(startDate + 'T12:00:00');
 
   // Build date list for the selected range (1–4 days)
@@ -285,12 +324,13 @@ export async function getWeatherForecast(
     let chosen: DailyForecast | undefined;
 
     if (n <= 15 && earth2Data) {
-      chosen = earth2Data.dailyForecasts.find((d) => d.date === iso);
+      chosen = earth2Data.dailyForecasts.find((d) => d.date === iso) ?? earth2Data.dailyForecasts[i];
     } else if (n >= 16 && n <= 90 && openMeteoDays.length > 0) {
-      chosen = openMeteoDays.find((d) => d.date === iso);
+      chosen = openMeteoDays.find((d) => d.date === iso) ?? openMeteoDays[i];
     }
 
     if (!chosen) {
+      console.warn('[weatherService] Falling back for day', { iso, n, hasEarth2: Boolean(earth2Data), openMeteoLen: openMeteoDays.length });
       chosen = createFallbackDaily(iso);
     }
 
