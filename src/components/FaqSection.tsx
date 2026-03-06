@@ -4,11 +4,26 @@ import { ChevronDown, HelpCircle } from 'lucide-react';
 const FAQ_ITEMS = [
   {
     q: 'How does the forecast work for different date ranges?',
-    a: 'For dates within 0–15 days of today we use a real AI forecast (Earth2). For dates 16–90 days ahead we show a historical average based on past years’ weather at your venue—useful for planning but with lower confidence than the short-term forecast.',
+    a: `ShaadiMausam uses three different weather data sources depending on your location and date:
+- For major cities (Mumbai, Delhi, Bangalore, Jaipur, Goa, Chennai, Hyderabad, Kolkata, Pune, Nagpur): We use Pangu24 AI — forecasts are pre-computed daily for instant results.
+- For all other cities and towns: We use Open-Meteo, a highly accurate weather forecast service with 80-90% accuracy up to 16 days ahead.
+- For dates 16-90 days in the future: We use Open-Meteo Historical Averages — based on the same calendar date over the last 10 years.`,
   },
   {
-    q: 'Why does it say "historical average" for some dates?',
-    a: 'Beyond 15 days, detailed day-by-day forecasts are less reliable. We show typical weather for that date based on the last 10 years at your location. Use it as a guide for what to expect; actual weather may vary.',
+    q: 'What is Pangu24 AI?',
+    a: `Pangu24 is a cutting-edge AI weather forecasting model developed by Huawei Research. It was trained on 39 years of global weather data and uses a 3D Earth Transformer neural network to predict atmospheric conditions with remarkable accuracy. ShaadiMausam runs Pangu24 on NVIDIA T4 GPUs, the same technology used by leading meteorological organizations worldwide. For major Indian wedding cities, we pre-compute Pangu24 forecasts daily so you get instant, highly accurate results.`,
+  },
+  {
+    q: 'What is Open-Meteo?',
+    a: `Open-Meteo is a free, open-source weather API that aggregates forecasts from top meteorological services including ECMWF, NOAA, and DWD. It provides 80-90% accurate forecasts for any location on Earth up to 16 days ahead. For dates beyond 16 days, Open-Meteo's historical archive analyzes weather patterns from the past 10 years to give statistically reliable seasonal estimates — perfect for long-term wedding planning.`,
+  },
+  {
+    q: 'Why does it say historical average for some dates?',
+    a: `If your wedding date is more than 16 days away, precise forecasts are not yet available from any weather service in the world — this is a fundamental limit of atmospheric science. Instead, we use Open-Meteo Historical Averages, analyzing the same calendar date over the past 10 years to give you a reliable seasonal estimate. This is still very useful for understanding typical weather conditions for your chosen date and location.`,
+  },
+  {
+    q: 'Which cities use Pangu24 AI forecasts?',
+    a: `Pangu24 AI forecasts are currently available for India's top wedding destinations: Mumbai, Delhi, Bangalore, Jaipur, Goa, Chennai, Hyderabad, Kolkata, Pune, and Nagpur. These forecasts are refreshed every 24 hours automatically. For all other locations, we use Open-Meteo which is still highly accurate for wedding planning purposes.`,
   },
   {
     q: 'What is your refund policy?',
@@ -49,7 +64,7 @@ export function FaqSection() {
             </button>
             {openIndex === index && (
               <div className="px-5 pb-4 pt-0">
-                <p className="text-gray-600 text-sm leading-relaxed">{item.a}</p>
+                <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-line">{item.a}</p>
               </div>
             )}
           </div>

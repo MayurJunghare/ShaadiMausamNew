@@ -10,6 +10,8 @@ export interface DailyForecast {
   humidity: number;
   summary: string;
   note?: string;
+  /** API source for this day: "Pangu24 AI" | "Open-Meteo Forecast" | "Open-Meteo Historical Average" */
+  source?: string;
 }
 
 /** Aggregated weather data from any source */

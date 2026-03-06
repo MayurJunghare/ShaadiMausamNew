@@ -30,8 +30,6 @@ function formatDateLabel(isoDate: string): string {
   return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-const MS_PER_DAY = 1000 * 60 * 60 * 24;
-
 interface ResultsPageProps {
   onOpenAuth: (mode: 'login' | 'signup') => void;
 }
@@ -56,26 +54,21 @@ export function ResultsPage({ onOpenAuth }: ResultsPageProps) {
   const ratingColor = score >= 80 ? 'text-green-600' : score >= 60 ? 'text-amber-600' : 'text-orange-600';
   const rec = state.recommendations;
 
-  // Infer which data sources were used from the date offsets.
+  // Build provider flags from each day's API source
   const providerFlags = new Set<'earth2' | 'openmeteo'>();
-  const today = new Date();
   dailyForecasts.forEach((day) => {
-    const d = new Date(day.date + 'T12:00:00');
-    const diffDays = Math.floor((d.getTime() - today.getTime()) / MS_PER_DAY);
-    if (diffDays <= 15) {
-      providerFlags.add('earth2');
-    } else if (diffDays >= 16 && diffDays <= 90) {
-      providerFlags.add('openmeteo');
-    }
+    const src = day.source;
+    if (src === 'Pangu24 AI') providerFlags.add('earth2');
+    if (src === 'Open-Meteo Forecast' || src === 'Open-Meteo Historical Average') providerFlags.add('openmeteo');
   });
 
   let dataSourceLabel = '';
   if (providerFlags.has('earth2') && providerFlags.has('openmeteo')) {
-    dataSourceLabel = 'Earth2 AI & Open-Meteo Historical Average';
+    dataSourceLabel = 'Pangu24 AI & Open-Meteo';
   } else if (providerFlags.has('earth2')) {
-    dataSourceLabel = 'Earth2 AI';
+    dataSourceLabel = 'Pangu24 AI';
   } else if (providerFlags.has('openmeteo')) {
-    dataSourceLabel = 'Open-Meteo Historical Average';
+    dataSourceLabel = 'Open-Meteo';
   }
 
   const sectionText = (

@@ -54,6 +54,7 @@ async function getEarth2Forecast(
       wind: Math.round(f.wind_speed_kmh),
       humidity: f.humidity_percent,
       summary: f.condition || 'Unknown',
+      source: 'Pangu24 AI',
     };
   });
 
@@ -69,6 +70,7 @@ async function getEarth2Forecast(
       wind: Math.round(weddingDay.wind_speed_kmh),
       humidity: weddingDay.humidity_percent,
       summary: weddingDay.condition || 'Unknown',
+      source: 'Pangu24 AI',
     });
   }
 
@@ -187,6 +189,7 @@ async function getOpenMeteoHistoricalAverages(
         wind: Math.round(avgWind),
         humidity: Math.round(avgHumidity),
         summary,
+        source: 'Open-Meteo Historical Average',
       });
     } catch (err) {
       console.warn('Open-Meteo historical API failed for', isoTarget, err);
