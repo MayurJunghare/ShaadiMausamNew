@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, Cloud, MapPin, Sparkles } from 'lucide-react';
 import { Navbar } from '../components/Navbar';
-import { DecorativeFrame } from '../components/DecorativeFrame';
 import { FaqSection } from '../components/FaqSection';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -332,18 +331,10 @@ export function HomePage({ onOpenAuth }: HomePageProps) {
   };
 
   return (
-    <div className="min-h-screen page-cream-texture">
+    <div className="min-h-screen bg-cream-50">
       <Navbar onOpenAuth={onOpenAuth} variant="app" />
       <main className="pt-20 pb-16 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
-        <DecorativeFrame>
-          {/* Scattered petals near title */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden z-0" aria-hidden>
-            <span className="absolute top-8 left-[10%] w-3 h-4 rounded-full bg-pink-200/40 transform -rotate-12" />
-            <span className="absolute top-14 right-[15%] w-4 h-3 rounded-full bg-rose-200/35 transform rotate-6" />
-            <span className="absolute top-24 left-[20%] w-2 h-3 rounded-full bg-pink-100/50 transform -rotate-6" />
-            <span className="absolute top-12 right-[8%] w-3 h-3 rounded-full bg-rose-100/40" />
-          </div>
-          <div className="text-center mb-10 relative z-10">
+        <div className="text-center mb-10">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-maroon-600 mb-2 text-center">
               <span className="block whitespace-nowrap">
                 <span className="relative inline-block">
@@ -362,7 +353,7 @@ export function HomePage({ onOpenAuth }: HomePageProps) {
           </div>
 
           {/* Single card: Wedding Date + Wedding Location */}
-          <div className="bg-white rounded-2xl p-6 shadow-lg border border-amber-100/60 mb-10 relative z-10">
+          <div className="bg-white rounded-2xl p-6 shadow-lg border border-amber-100/60 mb-10">
             {/* Wedding Date section */}
             <div className="flex items-center gap-2 mb-2">
               <Calendar className="text-maroon-600 shrink-0" size={24} />
@@ -531,7 +522,6 @@ export function HomePage({ onOpenAuth }: HomePageProps) {
         <p className="text-center text-sm text-gray-500 mt-8 mb-6">
           Made with ❤️ for Indian Weddings
         </p>
-        </DecorativeFrame>
 
         <FaqSection />
       </main>

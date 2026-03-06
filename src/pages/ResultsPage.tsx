@@ -11,7 +11,6 @@ import {
   Users,
 } from 'lucide-react';
 import { Navbar } from '../components/Navbar';
-import { DecorativeFrame } from '../components/DecorativeFrame';
 import { FaqSection } from '../components/FaqSection';
 import type { WeatherData } from '../types/weather';
 import type { Recommendations } from '../services/claudeService';
@@ -98,11 +97,10 @@ export function ResultsPage({ onOpenAuth }: ResultsPageProps) {
   const longContentClass = 'text-gray-700 leading-relaxed whitespace-pre-line';
 
   return (
-    <div className="min-h-screen page-cream-texture">
+    <div className="min-h-screen bg-cream-50">
       <Navbar onOpenAuth={onOpenAuth} variant="app" />
       <main className="pt-20 pb-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
-        <DecorativeFrame>
-        <div className="relative z-10">
+        <div>
         <h1 className="text-3xl sm:text-4xl font-heading font-bold text-maroon-600 mb-2">
           Weather Analysis Results
         </h1>
@@ -235,7 +233,6 @@ export function ResultsPage({ onOpenAuth }: ResultsPageProps) {
           Made with ❤️ for Indian Weddings
         </p>
         </div>
-        </DecorativeFrame>
 
         <FaqSection />
       </main>
