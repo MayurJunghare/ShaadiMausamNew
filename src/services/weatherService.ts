@@ -212,9 +212,9 @@ export async function getWeatherForecast(
   startDate: string,
   daysToShow: number = 4
 ): Promise<WeatherData> {
-  // Round coordinates to whole numbers (0 decimals) for consistency with backend seeding
-  const roundedLat = Math.round(latitude);
-  const roundedLon = Math.round(longitude);
+  // Round coordinates to 1 decimal place for consistency with backend cache keys
+  const roundedLat = Math.round(latitude * 10) / 10;
+  const roundedLon = Math.round(longitude * 10) / 10;
 
   const start = new Date(startDate + 'T12:00:00');
 
