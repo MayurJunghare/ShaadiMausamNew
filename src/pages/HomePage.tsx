@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Cloud, MapPin, Send, Sparkles } from 'lucide-react';
+import { Calendar, Cloud, MapPin, Sparkles } from 'lucide-react';
 import { Navbar } from '../components/Navbar';
+import { DecorativeFrame } from '../components/DecorativeFrame';
 import { FaqSection } from '../components/FaqSection';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -331,141 +332,138 @@ export function HomePage({ onOpenAuth }: HomePageProps) {
   };
 
   return (
-    <div className="min-h-screen page-romantic-bg">
+    <div className="min-h-screen bg-cream-50">
       <Navbar onOpenAuth={onOpenAuth} variant="app" />
-      <main className="pt-20 pb-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-10">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-maroon-600 mb-2 flex items-center justify-center gap-2 flex-wrap">
-            <span className="relative">
-              <span className="text-maroon-600">W</span>
-              <span className="absolute -top-1 -right-2 opacity-90">
-                <Cloud className="text-maroon-500" size={28} />
+      <main className="pt-20 pb-16 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+        <DecorativeFrame>
+          <div className="text-center mb-10">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-maroon-500 mb-2 text-center">
+              <span className="block sm:inline-block whitespace-nowrap">
+                <span className="relative">
+                  <span className="text-maroon-500">W</span>
+                  <span className="absolute -top-1 -right-2 opacity-90">
+                    <Cloud className="text-maroon-400" size={28} />
+                  </span>
+                </span>
+                edding
               </span>
-            </span>
-            edding Weather Planner
-          </h1>
-          <p className="text-gray-600 text-base sm:text-lg max-w-2xl mx-auto">
-            Get personalized weather insights and recommendations for your perfect wedding day.
-          </p>
-        </div>
+              <span className="block sm:inline-block"> Weather Planner</span>
+            </h1>
+            <p className="text-gray-600 text-base sm:text-lg max-w-2xl mx-auto">
+              Get personalized weather insights and recommendations for your perfect wedding day.
+            </p>
+          </div>
 
-        <div className="space-y-0 mb-10">
           {/* Single card: Wedding Date + Wedding Location */}
-          <div className="bg-white/95 backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-xl border border-amber-100/80 max-w-2xl mx-auto">
+          <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100 mb-10">
             {/* Wedding Date section */}
-            <div className="mb-8">
-              <div className="flex items-center gap-2 mb-2">
-                <Calendar className="text-maroon-600 shrink-0" size={24} />
-                <h2 className="text-xl font-heading font-bold text-maroon-700">Wedding Date</h2>
-              </div>
-              <p className="text-gray-600 text-sm mb-1">Select your wedding date or date range.</p>
-              <p className="text-gray-500 text-sm mb-4">Forecast is available till {maxForecastLabel}.</p>
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="start-date" className="block text-sm font-medium text-gray-700 mb-1">
-                    Wedding Date (or Start Date)
-                  </label>
-                  <div className="relative">
-                    <input
-                      id="start-date"
-                      type="date"
-                      value={startDate}
-                      min={todayStr}
-                      max={maxStr}
-                      onChange={(e) => handleStartDateChange(e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-maroon-500/40 focus:border-maroon-500 bg-white"
-                    />
-                    <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
-                  </div>
-                </div>
-                <div>
-                  <label htmlFor="end-date" className="block text-sm font-medium text-gray-700 mb-1">
-                    End Date (Optional - for multi-day events)
-                  </label>
-                  <div className="relative">
-                    <input
-                      id="end-date"
-                      type="date"
-                      value={endDate}
-                      min={startDate || undefined}
-                      max={maxStr}
-                      onChange={(e) => handleEndDateChange(e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-maroon-500/40 focus:border-maroon-500 bg-white"
-                    />
-                    <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
-                  </div>
-                </div>
-              </div>
-              {dateMessage && (
-                <p className="text-sm text-amber-600 mt-2">{dateMessage}</p>
-              )}
+            <div className="flex items-center gap-2 mb-2">
+              <Calendar className="text-maroon-500" size={24} />
+              <h2 className="text-xl font-heading font-bold text-gray-900">Wedding Date</h2>
             </div>
-
-            <div className="border-t border-gray-100 my-6" />
+            <p className="text-gray-600 text-sm mb-1">Select your wedding date or date range.</p>
+            <p className="text-gray-500 text-sm mb-4">Forecast is available till {maxForecastLabel}. Format: dd-mm-yyyy</p>
+            <div className="grid sm:grid-cols-2 gap-4 mb-6">
+              <div>
+                <label htmlFor="start-date" className="block text-sm font-medium text-gray-700 mb-1">
+                  Wedding Date (or Start Date)
+                </label>
+                <div className="relative">
+                  <input
+                    id="start-date"
+                    type="date"
+                    value={startDate}
+                    min={todayStr}
+                    max={maxStr}
+                    onChange={(e) => handleStartDateChange(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-maroon-500 focus:border-transparent"
+                    title="dd-mm-yyyy"
+                  />
+                  <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
+                </div>
+              </div>
+              <div>
+                <label htmlFor="end-date" className="block text-sm font-medium text-gray-700 mb-1">
+                  End Date (Optional - for multi-day events)
+                </label>
+                <div className="relative">
+                  <input
+                    id="end-date"
+                    type="date"
+                    value={endDate}
+                    min={startDate || undefined}
+                    max={maxStr}
+                    onChange={(e) => handleEndDateChange(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-maroon-500 focus:border-transparent"
+                    title="dd-mm-yyyy"
+                  />
+                  <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
+                </div>
+              </div>
+            </div>
+            {dateMessage && (
+              <p className="text-sm text-amber-600 mt-2 mb-4">{dateMessage}</p>
+            )}
 
             {/* Wedding Location section */}
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <MapPin className="text-maroon-600 shrink-0" size={24} />
-                <h2 className="text-xl font-heading font-bold text-maroon-700">Wedding Location</h2>
-              </div>
-              <p className="text-gray-600 text-sm mb-4">Choose your wedding venue location.</p>
+            <div className="flex items-center gap-2 mb-2 pt-4 border-t border-gray-100">
+              <MapPin className="text-maroon-500" size={24} />
+              <h2 className="text-xl font-heading font-bold text-gray-900">Wedding Location</h2>
+            </div>
+            <p className="text-gray-600 text-sm mb-4">Choose your wedding venue location.</p>
+            <button
+              type="button"
+              onClick={handleUseCurrentLocation}
+              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-maroon-500 hover:bg-maroon-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors mb-2 border border-maroon-600"
+            >
+              <MapPin size={20} />
+              Use Current Location
+            </button>
+            {locationFromCurrentLocation && location && (
+              <p className="text-sm text-gray-600 mb-4">
+                <span className="font-medium text-maroon-600">{location}</span>
+              </p>
+            )}
+            {!locationFromCurrentLocation && <div className="mb-4" />}
+            <p className="text-gray-500 text-sm mb-2">Or search manually</p>
+            <div className="flex gap-2">
+              <input
+                ref={locationInputRef}
+                type="text"
+                defaultValue=""
+                onKeyDown={(e) => e.key === 'Enter' && handleSearchLocation()}
+                placeholder="Enter city, venue, or address..."
+                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-maroon-500 focus:border-transparent"
+                autoComplete="off"
+                aria-label="Wedding location search"
+              />
               <button
                 type="button"
-                onClick={handleUseCurrentLocation}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-maroon-600 hover:bg-maroon-700 text-white px-6 py-3 rounded-xl font-semibold transition-colors mb-2 shadow-md"
+                onClick={handleSearchLocation}
+                className="px-6 py-3 bg-maroon-400 hover:bg-maroon-500 text-white rounded-lg font-semibold transition-colors whitespace-nowrap"
               >
-                <Send size={20} />
-                Use Current Location
+                Search
               </button>
-              {locationFromCurrentLocation && location && (
-                <p className="text-sm text-gray-600 mb-4">
-                  <span className="font-medium text-maroon-600">{location}</span>
-                </p>
-              )}
-              {!locationFromCurrentLocation && <div className="mb-4" />}
-              <p className="text-gray-500 text-sm mb-2">Or search manually</p>
-              <div className="flex flex-col sm:flex-row gap-2">
-                <input
-                  ref={locationInputRef}
-                  type="text"
-                  defaultValue=""
-                  onKeyDown={(e) => e.key === 'Enter' && handleSearchLocation()}
-                  placeholder="Enter city, venue, or address..."
-                  className="flex-1 min-w-0 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-maroon-500/40 focus:border-maroon-500 bg-white"
-                  autoComplete="off"
-                  aria-label="Wedding location search"
-                />
-                <button
-                  type="button"
-                  onClick={handleSearchLocation}
-                  className="px-6 py-3 bg-maroon-500 hover:bg-maroon-600 text-white rounded-xl font-semibold transition-colors whitespace-nowrap shadow-md"
-                >
-                  Search
-                </button>
-              </div>
-              {placesLoadError && GOOGLE_PLACES_API_KEY && (
-                <p className="mt-2 text-sm text-amber-600">
-                  Enable <strong>Maps JavaScript API</strong> and <strong>Places API</strong> in Google Cloud (APIs &amp; Services → Library) for suggestions to appear.
-                </p>
-              )}
-              {location && !locationFromCurrentLocation && (
-                <p className="mt-2 text-sm text-gray-600">
-                  Selected: <span className="font-medium text-maroon-600">{location}</span>
-                </p>
-              )}
-              {locationError && (
-                <p className="mt-2 text-sm text-red-600">{locationError}</p>
-              )}
             </div>
+            {placesLoadError && GOOGLE_PLACES_API_KEY && (
+              <p className="mt-2 text-sm text-amber-600">
+                Enable <strong>Maps JavaScript API</strong> and <strong>Places API</strong> in Google Cloud (APIs &amp; Services → Library) for suggestions to appear.
+              </p>
+            )}
+            {location && !locationFromCurrentLocation && (
+              <p className="mt-2 text-sm text-gray-600">
+                Selected: <span className="font-medium text-maroon-600">{location}</span>
+              </p>
+            )}
+            {locationError && (
+              <p className="mt-2 text-sm text-red-600">{locationError}</p>
+            )}
           </div>
-        </div>
 
         {/* Loading card: dolls + message when analyzing */}
         {isAnalyzing && (
           <div className="mb-10 flex justify-center">
-            <div className="w-full max-w-md rounded-3xl bg-white/90 backdrop-blur-sm p-8 shadow-xl border border-amber-100/80 text-center">
+            <div className="w-full max-w-md rounded-2xl bg-gradient-to-br from-pink-50 via-rose-50 to-amber-50 p-8 shadow-lg border border-pink-100 text-center">
               <div className="flex justify-center items-end mb-6 h-24">
                 <svg viewBox="0 0 200 100" className="w-48 h-24 flex-shrink-0" aria-hidden>
                   {/* Girl (left): head, dress, arm toward boy, legs */}
@@ -499,10 +497,10 @@ export function HomePage({ onOpenAuth }: HomePageProps) {
           <button
             type="button"
             onClick={handleAnalyze}
-            className={`inline-flex items-center justify-center gap-2 px-6 sm:px-10 py-4 rounded-full font-semibold text-base sm:text-lg transition-all shadow-lg min-h-[52px] sm:min-h-[56px] border-2 ${
+            className={`inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-semibold text-lg transition-all shadow-md min-h-[52px] border-2 ${
               startDate && location && !isAnalyzing
-                ? 'bg-gradient-to-r from-gold-400 via-gold-500 to-amber-500 hover:from-gold-500 hover:via-amber-500 hover:to-gold-600 text-white border-amber-600/50'
-                : 'bg-gray-300 hover:bg-gray-400 text-gray-700 cursor-not-allowed opacity-80 border-gray-300'
+                ? 'bg-gradient-to-r from-gold-400 via-gold-500 to-gold-600 hover:from-gold-500 hover:via-gold-600 hover:to-gold-700 text-white shadow-lg border-gold-600/80'
+                : 'bg-gray-300 hover:bg-gray-400 text-gray-800 cursor-not-allowed opacity-80 border-gray-400'
             }`}
             disabled={!startDate || !location || isAnalyzing}
           >
@@ -523,8 +521,12 @@ export function HomePage({ onOpenAuth }: HomePageProps) {
           </p>
         </div>
 
+        <p className="text-center text-sm text-gray-500 mt-8 mb-6">
+          Made with ❤️ for Indian Weddings
+        </p>
+        </DecorativeFrame>
+
         <FaqSection />
-        </div>
       </main>
     </div>
   );

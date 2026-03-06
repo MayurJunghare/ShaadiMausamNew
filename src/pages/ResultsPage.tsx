@@ -11,6 +11,7 @@ import {
   Users,
 } from 'lucide-react';
 import { Navbar } from '../components/Navbar';
+import { DecorativeFrame } from '../components/DecorativeFrame';
 import { FaqSection } from '../components/FaqSection';
 import type { WeatherData } from '../types/weather';
 import type { Recommendations } from '../services/claudeService';
@@ -97,28 +98,28 @@ export function ResultsPage({ onOpenAuth }: ResultsPageProps) {
   const longContentClass = 'text-gray-700 leading-relaxed whitespace-pre-line';
 
   return (
-    <div className="min-h-screen page-romantic-bg">
+    <div className="min-h-screen bg-cream-50">
       <Navbar onOpenAuth={onOpenAuth} variant="app" />
-      <main className="pt-20 pb-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-5xl mx-auto">
-        <h1 className="text-3xl sm:text-4xl font-heading font-bold text-maroon-600 mb-2">
+      <main className="pt-20 pb-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+        <DecorativeFrame>
+        <h1 className="text-3xl sm:text-4xl font-heading font-bold text-maroon-500 mb-2">
           Weather Analysis Results
         </h1>
         <p className="text-gray-600 mb-1">{dateRangeText}</p>
-        <p className="text-gray-500 text-sm mb-6">{state.location}</p>
+        <p className="text-gray-600 text-sm mb-6">{state.location}</p>
 
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
-          <div className="flex-1 min-w-0">
+          <div className="flex-1">
             {dataSourceLabel && (
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-500">
                 Data source:{' '}
-                <span className="font-semibold text-maroon-600">
+                <span className="font-medium text-maroon-600">
                   {dataSourceLabel}
                 </span>
               </p>
             )}
           </div>
-          <div className="bg-white/95 backdrop-blur-sm border-2 border-amber-200/80 rounded-2xl px-6 py-4 text-center shrink-0 shadow-md w-full sm:w-auto">
+          <div className="border-2 border-gold-400 bg-gold-50 rounded-xl px-6 py-4 text-center shrink-0">
             <p className="text-sm font-semibold text-gray-700 mb-1">Overall Suitability Score</p>
             <p className={`text-3xl font-bold ${ratingColor}`}>{score}/100</p>
             <p className={`text-lg font-semibold ${ratingColor}`}>{rating}</p>
@@ -130,12 +131,12 @@ export function ResultsPage({ onOpenAuth }: ResultsPageProps) {
           {dailyForecasts.map((day, i) => (
             <div
               key={i}
-              className="bg-white/95 backdrop-blur-sm border border-amber-100/80 rounded-3xl p-5 sm:p-6 shadow-xl"
+              className="bg-blue-50 border border-blue-200 rounded-2xl p-5 shadow-sm"
             >
-              <p className="font-heading font-bold text-maroon-700 mb-3">{day.day}, {day.dateShort}</p>
-              <div className="space-y-2 text-sm text-gray-700">
+              <p className="font-heading font-bold text-gray-900 mb-3">{day.day}, {day.dateShort}</p>
+              <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2">
-                  <Thermometer className="text-maroon-600 shrink-0" size={18} />
+                  <Thermometer className="text-maroon-500 shrink-0" size={18} />
                   <span>{day.tempMin}° - {day.tempMax}°C</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -158,10 +159,10 @@ export function ResultsPage({ onOpenAuth }: ResultsPageProps) {
         </div>
 
         {/* Personal Hygiene & Comfort */}
-        <section className="bg-white/95 backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-xl border border-amber-100/80 mb-6">
+        <section className="bg-white rounded-2xl p-6 shadow-md border border-gray-100 mb-6">
           <div className="flex items-center gap-2 mb-4">
-            <Shirt className="text-gold-600 shrink-0" size={24} />
-            <h2 className="text-xl font-heading font-bold text-maroon-700">Personal Hygiene & Comfort</h2>
+            <Shirt className="text-gold-500" size={24} />
+            <h2 className="text-xl font-heading font-bold text-maroon-500">Personal Hygiene & Comfort</h2>
           </div>
           {sectionContent(
             sectionText(rec?.personalHygiene,
@@ -173,10 +174,10 @@ export function ResultsPage({ onOpenAuth }: ResultsPageProps) {
         </section>
 
         {/* Venue Recommendations */}
-        <section className="bg-white/95 backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-xl border border-amber-100/80 mb-6">
+        <section className="bg-white rounded-2xl p-6 shadow-md border border-gray-100 mb-6">
           <div className="flex items-center gap-2 mb-4">
-            <Building2 className="text-rose-600 shrink-0" size={24} />
-            <h2 className="text-xl font-heading font-bold text-maroon-700">Venue Recommendations</h2>
+            <Building2 className="text-rose-500" size={24} />
+            <h2 className="text-xl font-heading font-bold text-maroon-500">Venue Recommendations</h2>
           </div>
           {sectionContent(
             sectionText(rec?.venueRecommendations,
@@ -188,10 +189,10 @@ export function ResultsPage({ onOpenAuth }: ResultsPageProps) {
         </section>
 
         {/* Local Cuisine Suggestions */}
-        <section className="bg-white/95 backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-xl border border-amber-100/80 mb-6">
+        <section className="bg-white rounded-2xl p-6 shadow-md border border-gray-100 mb-6">
           <div className="flex items-center gap-2 mb-4">
-            <UtensilsCrossed className="text-green-600 shrink-0" size={24} />
-            <h2 className="text-xl font-heading font-bold text-maroon-700">Local Cuisine Suggestions</h2>
+            <UtensilsCrossed className="text-green-600" size={24} />
+            <h2 className="text-xl font-heading font-bold text-maroon-500">Local Cuisine Suggestions</h2>
           </div>
           {sectionContent(
             sectionText(rec?.localCuisine,
@@ -203,10 +204,10 @@ export function ResultsPage({ onOpenAuth }: ResultsPageProps) {
         </section>
 
         {/* Photography Opportunities */}
-        <section className="bg-white/95 backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-xl border border-amber-100/80 mb-6">
+        <section className="bg-white rounded-2xl p-6 shadow-md border border-gray-100 mb-6">
           <div className="flex items-center gap-2 mb-4">
-            <Camera className="text-purple-600 shrink-0" size={24} />
-            <h2 className="text-xl font-heading font-bold text-maroon-700">Photography Opportunities</h2>
+            <Camera className="text-purple-500" size={24} />
+            <h2 className="text-xl font-heading font-bold text-maroon-500">Photography Opportunities</h2>
           </div>
           {sectionContent(
             sectionText(rec?.photography,
@@ -218,10 +219,10 @@ export function ResultsPage({ onOpenAuth }: ResultsPageProps) {
         </section>
 
         {/* Guest Comfort */}
-        <section className="bg-white/95 backdrop-blur-sm rounded-3xl p-6 sm:p-8 shadow-xl border border-amber-100/80 mb-6">
+        <section className="bg-white rounded-2xl p-6 shadow-md border border-gray-100 mb-6">
           <div className="flex items-center gap-2 mb-4">
-            <Users className="text-maroon-600 shrink-0" size={24} />
-            <h2 className="text-xl font-heading font-bold text-maroon-700">Guest Comfort</h2>
+            <Users className="text-maroon-500" size={24} />
+            <h2 className="text-xl font-heading font-bold text-maroon-500">Guest Comfort</h2>
           </div>
           {sectionContent(
             sectionText(rec?.guestComfort, 'Arrange shaded waiting areas and AC where needed. Consider elderly and child guest comfort.'),
@@ -229,8 +230,12 @@ export function ResultsPage({ onOpenAuth }: ResultsPageProps) {
           )}
         </section>
 
+        <p className="text-center text-sm text-gray-500 mt-8 mb-6">
+          Made with ❤️ for Indian Weddings
+        </p>
+        </DecorativeFrame>
+
         <FaqSection />
-        </div>
       </main>
     </div>
   );

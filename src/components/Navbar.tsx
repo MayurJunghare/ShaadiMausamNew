@@ -130,7 +130,7 @@ export function Navbar({ onOpenAuth, variant = 'marketing' }: NavbarProps) {
                   onClick={() => onOpenAuth('login')}
                   className="text-gray-700 hover:text-gold-600 transition-colors font-medium"
                 >
-                  Sign In
+                  {isApp ? 'Login' : 'Sign In'}
                 </button>
                 <button
                   onClick={() => onOpenAuth('signup')}
@@ -234,7 +234,7 @@ export function Navbar({ onOpenAuth, variant = 'marketing' }: NavbarProps) {
                   onClick={() => onOpenAuth('login')}
                   className="block w-full text-left text-gray-700 hover:text-gold-600 active:bg-gray-50 py-3 px-3 rounded-lg transition-colors touch-manipulation font-medium border-t mt-2"
                 >
-                  Sign In
+                  {isApp ? 'Login' : 'Sign In'}
                 </button>
                 <button
                   onClick={() => onOpenAuth('signup')}

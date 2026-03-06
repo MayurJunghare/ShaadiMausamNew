@@ -56,14 +56,3 @@
 .animate-doll-walk-right {
   animation: doll-walk-right 2s ease-in-out infinite alternate;
 }
-
-/* Romantic planner/results page background: soft cream with subtle warmth */
-.page-romantic-bg {
-  min-height: 100vh;
-  background: linear-gradient(180deg, #FFFEFA 0%, #FFF9F0 30%, #FFF5E8 70%, #FFFDF5 100%);
-}
-@media (min-width: 768px) {
-  .page-romantic-bg {
-    background: linear-gradient(180deg, #FFFEFA 0%, #FFFBF5 25%, #FFF8EE 50%, #FFFBF5 75%, #FFFDF5 100%);
-  }
-}
