@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, Cloud, MapPin, Sparkles } from 'lucide-react';
 import { Navbar } from '../components/Navbar';
+import { FallingFlowers } from '../components/FallingFlowers';
 import { FaqSection } from '../components/FaqSection';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -331,7 +332,8 @@ export function HomePage({ onOpenAuth }: HomePageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-cream-50">
+    <div className="min-h-screen bg-cream-50 relative">
+      <FallingFlowers />
       <Navbar onOpenAuth={onOpenAuth} variant="app" />
       <main className="pt-20 pb-16 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
         <div className="text-center mb-10">

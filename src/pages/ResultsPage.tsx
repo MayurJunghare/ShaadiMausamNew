@@ -11,6 +11,7 @@ import {
   Users,
 } from 'lucide-react';
 import { Navbar } from '../components/Navbar';
+import { FallingFlowers } from '../components/FallingFlowers';
 import { FaqSection } from '../components/FaqSection';
 import type { WeatherData } from '../types/weather';
 import type { Recommendations } from '../services/claudeService';
@@ -97,7 +98,8 @@ export function ResultsPage({ onOpenAuth }: ResultsPageProps) {
   const longContentClass = 'text-gray-700 leading-relaxed whitespace-pre-line';
 
   return (
-    <div className="min-h-screen bg-cream-50">
+    <div className="min-h-screen bg-cream-50 relative">
+      <FallingFlowers />
       <Navbar onOpenAuth={onOpenAuth} variant="app" />
       <main className="pt-20 pb-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
         <div>

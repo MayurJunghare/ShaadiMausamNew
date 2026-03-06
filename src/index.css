@@ -56,3 +56,25 @@
 .animate-doll-walk-right {
   animation: doll-walk-right 2s ease-in-out infinite alternate;
 }
+
+/* Falling flowers: decorative layer on planner/results */
+@keyframes flower-fall {
+  0% {
+    transform: translateY(-10%) translateX(0) rotate(0deg);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(110vh) translateX(15px) rotate(180deg);
+    opacity: 0.25;
+  }
+}
+.animate-flower-fall {
+  animation: flower-fall linear infinite;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-flower-fall {
+    animation: none;
+    opacity: 0.2;
+  }
+}
