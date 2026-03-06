@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, Cloud, MapPin, Sparkles } from 'lucide-react';
 import { Navbar } from '../components/Navbar';
-import { WeddingFrame } from '../components/WeddingFrame';
 import { FaqSection } from '../components/FaqSection';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -332,11 +331,10 @@ export function HomePage({ onOpenAuth }: HomePageProps) {
   };
 
   return (
-    <div className="min-h-screen page-wedding-canvas">
+    <div className="min-h-screen bg-cream-50">
       <Navbar onOpenAuth={onOpenAuth} variant="app" />
       <main className="pt-20 pb-16 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
-        <WeddingFrame>
-        <div className="text-center mb-8 sm:mb-10">
+        <div className="text-center mb-10">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-maroon-600 mb-2 text-center">
               <span className="block whitespace-nowrap">
                 <span className="relative inline-block">
@@ -354,8 +352,8 @@ export function HomePage({ onOpenAuth }: HomePageProps) {
             </p>
           </div>
 
-          {/* Single card: central content on canvas – white card with soft shadow */}
-          <div className="bg-white/98 rounded-2xl sm:rounded-3xl p-5 sm:p-6 md:p-8 shadow-xl shadow-gray-300/30 border border-amber-100/50 mb-8 sm:mb-10">
+          {/* Single card: Wedding Date + Wedding Location */}
+          <div className="bg-white rounded-2xl p-6 shadow-lg border border-amber-100/60 mb-10">
             {/* Wedding Date section */}
             <div className="flex items-center gap-2 mb-2">
               <Calendar className="text-maroon-600 shrink-0" size={24} />
@@ -497,9 +495,9 @@ export function HomePage({ onOpenAuth }: HomePageProps) {
           <button
             type="button"
             onClick={handleAnalyze}
-            className={`inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all min-h-[48px] sm:min-h-[52px] border ${
+            className={`inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-semibold text-lg transition-all min-h-[52px] border-2 ${
               startDate && location && !isAnalyzing
-                ? 'text-maroon-800 bg-gradient-to-b from-amber-200/90 via-amber-400 to-gold-600 hover:from-amber-300 hover:via-gold-500 hover:to-amber-700 shadow-lg shadow-amber-900/25 border-amber-600/50 ring-2 ring-amber-400/30 ring-offset-2 ring-offset-[#FFFBF7]'
+                ? 'text-maroon-800 bg-gradient-to-b from-amber-300 via-gold-500 to-amber-600 hover:from-amber-400 hover:via-gold-600 hover:to-amber-700 shadow-lg shadow-amber-900/20 border-amber-700/60'
                 : 'bg-gray-300 hover:bg-gray-400 text-gray-800 cursor-not-allowed opacity-80 border-gray-400'
             }`}
             disabled={!startDate || !location || isAnalyzing}
@@ -521,10 +519,9 @@ export function HomePage({ onOpenAuth }: HomePageProps) {
           </p>
         </div>
 
-        <p className="text-center text-sm text-maroon-700/70 mt-8 mb-6">
+        <p className="text-center text-sm text-gray-500 mt-8 mb-6">
           Made with ❤️ for Indian Weddings
         </p>
-        </WeddingFrame>
 
         <FaqSection />
       </main>

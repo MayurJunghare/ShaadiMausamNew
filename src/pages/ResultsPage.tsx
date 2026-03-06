@@ -11,7 +11,6 @@ import {
   Users,
 } from 'lucide-react';
 import { Navbar } from '../components/Navbar';
-import { WeddingFrame } from '../components/WeddingFrame';
 import { FaqSection } from '../components/FaqSection';
 import type { WeatherData } from '../types/weather';
 import type { Recommendations } from '../services/claudeService';
@@ -98,12 +97,11 @@ export function ResultsPage({ onOpenAuth }: ResultsPageProps) {
   const longContentClass = 'text-gray-700 leading-relaxed whitespace-pre-line';
 
   return (
-    <div className="min-h-screen page-wedding-canvas">
+    <div className="min-h-screen bg-cream-50">
       <Navbar onOpenAuth={onOpenAuth} variant="app" />
       <main className="pt-20 pb-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
-        <WeddingFrame>
-        <div className="relative z-10">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold text-maroon-600 mb-2">
+        <div>
+        <h1 className="text-3xl sm:text-4xl font-heading font-bold text-maroon-600 mb-2">
           Weather Analysis Results
         </h1>
         <p className="text-gray-600 mb-1">{dateRangeText}</p>
@@ -120,7 +118,7 @@ export function ResultsPage({ onOpenAuth }: ResultsPageProps) {
               </p>
             )}
           </div>
-          <div className="border-2 border-amber-200/70 bg-gradient-to-b from-amber-50/90 to-gold-50/80 rounded-xl px-4 sm:px-6 py-4 text-center shrink-0 shadow-lg shadow-amber-900/10">
+          <div className="border-2 border-amber-200/80 bg-gradient-to-b from-gold-50 to-amber-50 rounded-xl px-6 py-4 text-center shrink-0 shadow-md">
             <p className="text-sm font-semibold text-gray-700 mb-1">Overall Suitability Score</p>
             <p className={`text-3xl font-bold ${ratingColor}`}>{score}/100</p>
             <p className={`text-lg font-semibold ${ratingColor}`}>{rating}</p>
@@ -132,7 +130,7 @@ export function ResultsPage({ onOpenAuth }: ResultsPageProps) {
           {dailyForecasts.map((day, i) => (
             <div
               key={i}
-              className="bg-white/98 rounded-2xl p-4 sm:p-5 shadow-xl shadow-gray-300/20 border border-amber-100/50"
+              className="bg-white rounded-2xl p-5 shadow-lg border border-amber-100/50"
             >
               <p className="font-heading font-bold text-gray-900 mb-3">{day.day}, {day.dateShort}</p>
               <div className="space-y-2 text-sm">
@@ -160,7 +158,7 @@ export function ResultsPage({ onOpenAuth }: ResultsPageProps) {
         </div>
 
         {/* Personal Hygiene & Comfort */}
-        <section className="bg-white/98 rounded-2xl sm:rounded-3xl p-5 sm:p-6 md:p-8 shadow-xl shadow-gray-300/25 border border-amber-100/50 mb-5 sm:mb-6">
+        <section className="bg-white rounded-2xl p-6 shadow-lg border border-amber-100/60 mb-6">
           <div className="flex items-center gap-2 mb-4">
             <Shirt className="text-gold-500" size={24} />
             <h2 className="text-xl font-heading font-bold text-maroon-500">Personal Hygiene & Comfort</h2>
@@ -175,7 +173,7 @@ export function ResultsPage({ onOpenAuth }: ResultsPageProps) {
         </section>
 
         {/* Venue Recommendations */}
-        <section className="bg-white/98 rounded-2xl sm:rounded-3xl p-5 sm:p-6 md:p-8 shadow-xl shadow-gray-300/25 border border-amber-100/50 mb-5 sm:mb-6">
+        <section className="bg-white rounded-2xl p-6 shadow-lg border border-amber-100/60 mb-6">
           <div className="flex items-center gap-2 mb-4">
             <Building2 className="text-rose-500" size={24} />
             <h2 className="text-xl font-heading font-bold text-maroon-500">Venue Recommendations</h2>
@@ -190,7 +188,7 @@ export function ResultsPage({ onOpenAuth }: ResultsPageProps) {
         </section>
 
         {/* Local Cuisine Suggestions */}
-        <section className="bg-white/98 rounded-2xl sm:rounded-3xl p-5 sm:p-6 md:p-8 shadow-xl shadow-gray-300/25 border border-amber-100/50 mb-5 sm:mb-6">
+        <section className="bg-white rounded-2xl p-6 shadow-lg border border-amber-100/60 mb-6">
           <div className="flex items-center gap-2 mb-4">
             <UtensilsCrossed className="text-green-600" size={24} />
             <h2 className="text-xl font-heading font-bold text-maroon-500">Local Cuisine Suggestions</h2>
@@ -205,7 +203,7 @@ export function ResultsPage({ onOpenAuth }: ResultsPageProps) {
         </section>
 
         {/* Photography Opportunities */}
-        <section className="bg-white/98 rounded-2xl sm:rounded-3xl p-5 sm:p-6 md:p-8 shadow-xl shadow-gray-300/25 border border-amber-100/50 mb-5 sm:mb-6">
+        <section className="bg-white rounded-2xl p-6 shadow-lg border border-amber-100/60 mb-6">
           <div className="flex items-center gap-2 mb-4">
             <Camera className="text-purple-500" size={24} />
             <h2 className="text-xl font-heading font-bold text-maroon-500">Photography Opportunities</h2>
@@ -220,7 +218,7 @@ export function ResultsPage({ onOpenAuth }: ResultsPageProps) {
         </section>
 
         {/* Guest Comfort */}
-        <section className="bg-white/98 rounded-2xl sm:rounded-3xl p-5 sm:p-6 md:p-8 shadow-xl shadow-gray-300/25 border border-amber-100/50 mb-5 sm:mb-6">
+        <section className="bg-white rounded-2xl p-6 shadow-lg border border-amber-100/60 mb-6">
           <div className="flex items-center gap-2 mb-4">
             <Users className="text-maroon-500" size={24} />
             <h2 className="text-xl font-heading font-bold text-maroon-500">Guest Comfort</h2>
@@ -231,11 +229,10 @@ export function ResultsPage({ onOpenAuth }: ResultsPageProps) {
           )}
         </section>
 
-        <p className="text-center text-sm text-maroon-700/70 mt-8 mb-6">
+        <p className="text-center text-sm text-gray-500 mt-8 mb-6">
           Made with ❤️ for Indian Weddings
         </p>
         </div>
-        </WeddingFrame>
 
         <FaqSection />
       </main>

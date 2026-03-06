@@ -56,9 +56,3 @@
 .animate-doll-walk-right {
   animation: doll-walk-right 2s ease-in-out infinite alternate;
 }
-
-/* Wedding planner/results: soft cream canvas with subtle paisley/mandala (watermark-level) */
-.page-wedding-canvas {
-  background-color: #FFFBF7;
-  background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M40 8 Q48 20 40 32 Q32 20 40 8' fill='none' stroke='%23E8E0D8' stroke-width='0.35' opacity='0.4'/%3E%3Cpath d='M40 48 Q52 56 40 72 Q28 56 40 48' fill='none' stroke='%23E8E0D8' stroke-width='0.3' opacity='0.35'/%3E%3Ccircle cx='40' cy='40' r='1.5' fill='%23E0D8D0' opacity='0.25'/%3E%3Cpath d='M20 20 Q30 25 20 35 M60 45 Q55 55 60 65' fill='none' stroke='%23E0D8D0' stroke-width='0.25' opacity='0.3'/%3E%3C/svg%3E");
-}
