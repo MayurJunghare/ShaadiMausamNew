@@ -57,15 +57,15 @@
   animation: doll-walk-right 2s ease-in-out infinite alternate;
 }
 
-/* Falling flowers: decorative layer on planner/results */
+/* Falling flowers: decorative layer on planner/results (marigolds) */
 @keyframes flower-fall {
   0% {
     transform: translateY(-10%) translateX(0) rotate(0deg);
-    opacity: 0.85;
+    opacity: 0.9;
   }
   100% {
-    transform: translateY(110vh) translateX(15px) rotate(180deg);
-    opacity: 0.45;
+    transform: translateY(110vh) translateX(var(--drift-x, 15px)) rotate(360deg);
+    opacity: 0.5;
   }
 }
 .animate-flower-fall {

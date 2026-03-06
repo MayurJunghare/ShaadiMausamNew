@@ -1,33 +1,61 @@
 import { useMemo } from 'react';
 
-const FLOWER_COUNT = 36;
+const FLOWER_COUNT = 40;
 
-/** Deterministic "random" values per index for stable layout */
+/** Marigold SVG: 8 petals + center, yellow or orange */
+function MarigoldSvg({
+  color,
+  size,
+  className = '',
+}: {
+  color: 'yellow' | 'orange';
+  size: number;
+  className?: string;
+}) {
+  const petalFill = color === 'yellow' ? '#FACC15' : '#FB923C';
+  const centerFill = color === 'yellow' ? '#CA8A04' : '#EA580C';
+
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      className={className}
+      aria-hidden
+    >
+      {[0, 45, 90, 135, 180, 225, 270, 315].map((deg) => (
+        <ellipse
+          key={deg}
+          cx="12"
+          cy="6"
+          rx="2.8"
+          ry="4.5"
+          fill={petalFill}
+          transform={`rotate(${deg} 12 12)`}
+        />
+      ))}
+      <circle cx="12" cy="12" r="2" fill={centerFill} />
+    </svg>
+  );
+}
+
+/** Deterministic "random" values per index for stable layout, with more variation */
 function flowerConfig(index: number) {
-  const s = index * 1.618033989; // golden ratio for spread
+  const s = index * 1.618033989;
+  const s2 = index * 2.718281828;
+  const s3 = index * 0.866025404;
   return {
     id: index,
-    left: 5 + (Math.floor(s * 100) % 90),
-    delay: Math.floor((s * 1000) % 8000),
-    duration: 12000 + Math.floor((s * 100) % 8000),
-    color: index % 3 === 0 ? 'orange' : index % 3 === 1 ? 'yellow' : 'amber',
-    size: index % 3 === 0 ? 'sm' : index % 3 === 1 ? 'md' : 'lg',
+    left: (Math.floor(s * 137) % 96),
+    delay: Math.floor((s * 1500) % 12000),
+    duration: 10000 + Math.floor((s2 * 500) % 10000),
+    driftX: (Math.floor(s3 * 100) % 2 === 0 ? 1 : -1) * (10 + (Math.floor(s * 47) % 20)),
+    color: index % 2 === 0 ? 'yellow' : 'orange',
+    size: index % 3 === 0 ? 16 : index % 3 === 1 ? 24 : 32,
   };
 }
 
 const FLOWERS = Array.from({ length: FLOWER_COUNT }, (_, i) => flowerConfig(i));
-
-const sizeClasses = {
-  sm: 'w-5 h-5',
-  md: 'w-6 h-6',
-  lg: 'w-8 h-8',
-};
-
-const colorClasses = {
-  yellow: 'bg-yellow-400/80',
-  orange: 'bg-orange-400/80',
-  amber: 'bg-amber-300/80',
-};
 
 export function FallingFlowers() {
   const flowers = useMemo(() => FLOWERS, []);
@@ -40,13 +68,16 @@ export function FallingFlowers() {
       {flowers.map((f) => (
         <div
           key={f.id}
-          className={`absolute rounded-full animate-flower-fall ${sizeClasses[f.size]} ${colorClasses[f.color]}`}
+          className="absolute animate-flower-fall opacity-90"
           style={{
             left: `${f.left}%`,
             animationDelay: `${f.delay}ms`,
             animationDuration: `${f.duration}ms`,
+            ['--drift-x' as string]: `${f.driftX}px`,
           }}
-        />
+        >
+          <MarigoldSvg color={f.color} size={f.size} />
+        </div>
       ))}
     </div>
   );
