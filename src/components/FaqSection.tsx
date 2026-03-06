@@ -41,10 +41,10 @@ export function FaqSection() {
   return (
     <section className="mt-12 sm:mt-16">
       <div className="flex items-center gap-2 mb-4">
-        <HelpCircle className="text-maroon-500 shrink-0" size={24} />
-        <h2 className="text-xl font-heading font-bold text-gray-900">Frequently Asked Questions</h2>
+        <HelpCircle className="text-maroon-600 shrink-0" size={24} />
+        <h2 className="text-xl font-heading font-bold text-maroon-700">Frequently Asked Questions</h2>
       </div>
-      <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+      <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-xl border border-amber-100/80 overflow-hidden">
         {FAQ_ITEMS.map((item, index) => (
           <div
             key={index}
