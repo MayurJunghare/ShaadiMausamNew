@@ -23,8 +23,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
+      if (event === 'PASSWORD_RECOVERY' && !window.location.pathname.includes('/reset-password')) {
+        window.location.replace(`${window.location.origin}/reset-password`);
+      }
     });
 
     return () => subscription.unsubscribe();
