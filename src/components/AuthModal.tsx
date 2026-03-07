@@ -11,17 +11,21 @@ interface AuthModalProps {
 
 export function AuthModal({ isOpen, onClose, mode: initialMode }: AuthModalProps) {
   const [mode, setMode] = useState(initialMode);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotPasswordSent, setForgotPasswordSent] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, resetPasswordForEmail } = useAuth();
   const navigate = useNavigate();
 
   // When modal opens, show the correct form (login vs signup)
   useEffect(() => {
     if (isOpen) {
       setMode(initialMode);
+      setShowForgotPassword(false);
+      setForgotPasswordSent(false);
       setError('');
     }
   }, [isOpen, initialMode]);
@@ -64,6 +68,24 @@ export function AuthModal({ isOpen, onClose, mode: initialMode }: AuthModalProps
     }
   };
 
+  const handleForgotSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      const { error: err } = await resetPasswordForEmail(email);
+      if (err) {
+        setError(err.message);
+      } else {
+        setForgotPasswordSent(true);
+      }
+    } catch (err) {
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 sm:p-6 overflow-y-auto">
       <div className="bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 relative animate-slide-up my-auto">
@@ -76,12 +98,22 @@ export function AuthModal({ isOpen, onClose, mode: initialMode }: AuthModalProps
         </button>
 
         <h2 className="text-2xl sm:text-3xl font-heading font-bold text-maroon-500 mb-2 pr-8">
-          {mode === 'login' ? 'Welcome Back' : 'Get Started'}
+          {showForgotPassword
+            ? forgotPasswordSent
+              ? 'Check your email'
+              : 'Reset password'
+            : mode === 'login'
+              ? 'Welcome Back'
+              : 'Get Started'}
         </h2>
         <p className="text-gray-600 mb-6 text-sm sm:text-base">
-          {mode === 'login'
-            ? 'Sign in to access your wedding weather plans'
-            : 'Create an account to start planning your perfect day'}
+          {showForgotPassword
+            ? forgotPasswordSent
+              ? "If an account exists for that email, we've sent a link to reset your password."
+              : "Enter your email and we'll send you a link to reset your password."
+            : mode === 'login'
+              ? 'Sign in to access your wedding weather plans'
+              : 'Create an account to start planning your perfect day'}
         </p>
 
         {error && (
@@ -90,6 +122,56 @@ export function AuthModal({ isOpen, onClose, mode: initialMode }: AuthModalProps
           </div>
         )}
 
+        {showForgotPassword ? (
+          forgotPasswordSent ? (
+            <div className="space-y-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowForgotPassword(false);
+                  setForgotPasswordSent(false);
+                }}
+                className="w-full bg-gradient-to-r from-gold-500 to-gold-600 text-white py-4 rounded-lg font-semibold hover:from-gold-600 hover:to-gold-700 transition-all min-h-[48px] touch-manipulation"
+              >
+                Back to sign in
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleForgotSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="forgot-email" className="block text-sm font-medium text-gray-700 mb-2">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  id="forgot-email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all text-base min-h-[48px]"
+                  placeholder="you@example.com"
+                  autoComplete="email"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-gold-500 to-gold-600 text-white py-4 rounded-lg font-semibold hover:from-gold-600 hover:to-gold-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg min-h-[48px] touch-manipulation"
+              >
+                {loading ? 'Please wait...' : 'Send reset link'}
+              </button>
+              <p className="text-center">
+                <button
+                  type="button"
+                  onClick={() => setShowForgotPassword(false)}
+                  className="text-gold-600 font-semibold hover:text-gold-700 transition-colors touch-manipulation"
+                >
+                  Back to sign in
+                </button>
+              </p>
+            </form>
+          )
+        ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
@@ -122,6 +204,17 @@ export function AuthModal({ isOpen, onClose, mode: initialMode }: AuthModalProps
               required
               minLength={6}
             />
+            {mode === 'login' && (
+              <div className="mt-2 text-right">
+                <button
+                  type="button"
+                  onClick={() => setShowForgotPassword(true)}
+                  className="text-gold-600 text-sm font-semibold hover:text-gold-700 transition-colors touch-manipulation"
+                >
+                  Forgot password?
+                </button>
+              </div>
+            )}
           </div>
 
           <button
@@ -144,6 +237,7 @@ export function AuthModal({ isOpen, onClose, mode: initialMode }: AuthModalProps
             </button>
           </p>
         </div>
+        )}
       </div>
     </div>
   );

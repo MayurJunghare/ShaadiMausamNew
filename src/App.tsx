@@ -6,6 +6,7 @@ import { LandingPage } from './pages/LandingPage';
 import { HomePage } from './pages/HomePage';
 import { ResultsPage } from './pages/ResultsPage';
 import { PricingPage } from './pages/PricingPage';
+import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { AuthModal } from './components/AuthModal';
 
 function RootPage({ onOpenAuth }: { onOpenAuth: (mode: 'login' | 'signup') => void }) {
@@ -71,6 +72,7 @@ function App() {
                 }
               />
             </Route>
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
