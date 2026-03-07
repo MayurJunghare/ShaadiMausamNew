@@ -54,20 +54,12 @@ export function Hero({ onOpenAuth }: HeroProps) {
               Go to Dashboard
             </Link>
           ) : (
-            <>
-              <button
-                onClick={() => onOpenAuth('signup')}
-                className="bg-gradient-to-r from-gold-500 to-gold-600 text-white px-6 sm:px-8 py-4 rounded-lg text-base sm:text-lg font-semibold hover:from-gold-600 hover:to-gold-700 transition-all transform hover:scale-105 active:scale-95 shadow-xl min-h-[48px] touch-manipulation"
-              >
-                Start Planning Your Wedding
-              </button>
-              <button
-                onClick={() => onOpenAuth('login')}
-                className="bg-white/20 backdrop-blur-sm text-white border-2 border-white px-6 sm:px-8 py-4 rounded-lg text-base sm:text-lg font-semibold hover:bg-white/30 active:bg-white/40 transition-all min-h-[48px] touch-manipulation"
-              >
-                Sign In
-              </button>
-            </>
+            <button
+              onClick={() => onOpenAuth('signup')}
+              className="bg-gradient-to-r from-gold-500 to-gold-600 text-white px-6 sm:px-8 py-4 rounded-lg text-base sm:text-lg font-semibold hover:from-gold-600 hover:to-gold-700 transition-all transform hover:scale-105 active:scale-95 shadow-xl min-h-[48px] touch-manipulation"
+            >
+              Start Planning Your Wedding
+            </button>
           )}
         </div>
       </div>
