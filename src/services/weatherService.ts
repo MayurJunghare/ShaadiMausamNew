@@ -61,7 +61,13 @@ async function getEarth2Forecast(
 
   const sliceCount = Math.max(1, Math.min(4, Math.floor(daysToShow) || 1));
 
-  const dailyForecasts: DailyForecast[] = forecastArray.slice(0, sliceCount).map((f) => {
+  // Slice from the requested start date, not from the beginning of the response
+  const startIndex = forecastArray.findIndex((f) => normalizeIsoDate(f?.date) === date);
+  const sliceFrom = startIndex >= 0 ? startIndex : 0;
+  const sliceTo = Math.min(sliceFrom + sliceCount, forecastArray.length);
+  const sliceForRange = sliceTo > sliceFrom ? forecastArray.slice(sliceFrom, sliceTo) : (weddingDay ? [weddingDay] : forecastArray.slice(0, sliceCount));
+
+  const dailyForecasts: DailyForecast[] = sliceForRange.map((f) => {
     const iso = normalizeIsoDate(f?.date);
     const label = formatDateLabel(iso);
     return {
