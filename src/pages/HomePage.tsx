@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Cloud, MapPin, Sparkles } from 'lucide-react';
+import { Calendar, MapPin, Sparkles } from 'lucide-react';
 import { Navbar } from '../components/Navbar';
 import { FallingFlowers } from '../components/FallingFlowers';
 import { FaqSection } from '../components/FaqSection';
@@ -338,15 +338,7 @@ export function HomePage({ onOpenAuth }: HomePageProps) {
       <main className="pt-20 pb-16 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
         <div className="text-center mb-10">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-maroon-600 mb-2 text-center">
-              <span className="block whitespace-nowrap">
-                <span className="relative inline-block">
-                  <span className="text-maroon-600">W</span>
-                  <span className="absolute -top-1 -right-2 opacity-90" aria-hidden>
-                    <Cloud className="text-maroon-500" size={28} />
-                  </span>
-                </span>
-                edding
-              </span>
+              <span className="block whitespace-nowrap">Wedding</span>
               <span className="block">Weather Planner</span>
             </h1>
             <p className="text-maroon-700/90 text-base sm:text-lg max-w-2xl mx-auto">
