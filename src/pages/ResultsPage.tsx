@@ -138,7 +138,7 @@ export function ResultsPage({ onOpenAuth }: ResultsPageProps) {
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2">
                   <Thermometer className="text-maroon-500 shrink-0" size={18} />
-                  <span>{day.tempMin}° - {day.tempMax}°C</span>
+                  <span>Min. {day.tempMin}°C – Max. {day.tempMax}°C</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CloudRain className="text-blue-600 shrink-0" size={18} />
