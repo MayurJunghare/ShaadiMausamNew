@@ -1,131 +1,24 @@
 /**
- * Weather service: Earth2 + Open-Meteo forecast.
- * Earth2 VM base URL comes from VITE_BACKEND_API_URL.
+ * Weather service: Open-Meteo archive (historical averages) for all requested days.
  */
 import axios from 'axios';
 import type {
   WeatherData,
   WeatherAnalysisResult,
   DailyForecast,
-  Earth2ForecastResponse,
 } from '../types/weather';
 import { geocodeAddress } from './geocodeService';
 
-const BASE_URL = (import.meta.env.VITE_API_BASE_URL as string) || 'https://api.shaadimausam.in';
 const OPEN_METEO_ARCHIVE_BASE = 'https://archive-api.open-meteo.com/v1/archive';
-const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
 function formatDateLabel(isoDate: string): string {
   const d = new Date(isoDate + 'T12:00:00');
   return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-function normalizeIsoDate(input: unknown): string {
-  const s = typeof input === 'string' ? input : '';
-  // Accept either YYYY-MM-DD or ISO strings like YYYY-MM-DDTHH:mm:ssZ
-  const match = s.match(/\d{4}-\d{2}-\d{2}/);
-  return match ? match[0] : s.slice(0, 10);
-}
-
 /**
- * Fetch forecast from Earth2 backend for up to 10 days starting at `date`.
- * Used for days that are 0–15 days ahead.
- */
-async function getEarth2Forecast(
-  latitude: number,
-  longitude: number,
-  date: string,
-  daysToShow: number = 4
-): Promise<WeatherData> {
-  const url = `${BASE_URL}/earth2/forecast`;
-  console.log('[weatherService] Earth2 request', { url, latitude, longitude, date, days: 10 });
-  const res = await axios.post<Earth2ForecastResponse>(url, {
-    latitude,
-    longitude,
-    date,
-    days: 10,
-  });
-
-  const data = res.data;
-  const rawForecast: unknown = (data as any)?.forecast;
-  const forecastArray: any[] = Array.isArray(rawForecast) ? rawForecast : [];
-  console.log('[weatherService] Earth2 response meta', {
-    source: (data as any)?.source,
-    temperature: (data as any)?.temperature,
-    forecastType: Array.isArray(rawForecast) ? 'array' : typeof rawForecast,
-    forecastLen: forecastArray.length,
-    first: forecastArray[0],
-  });
-
-  const weddingDay = forecastArray.find((f) => normalizeIsoDate(f?.date) === date) || forecastArray[0];
-
-  const sliceCount = Math.max(1, Math.min(4, Math.floor(daysToShow) || 1));
-
-  // Slice from the requested start date, not from the beginning of the response
-  const startIndex = forecastArray.findIndex((f) => normalizeIsoDate(f?.date) === date);
-  const sliceFrom = startIndex >= 0 ? startIndex : 0;
-  const sliceTo = Math.min(sliceFrom + sliceCount, forecastArray.length);
-  const sliceForRange = sliceTo > sliceFrom ? forecastArray.slice(sliceFrom, sliceTo) : (weddingDay ? [weddingDay] : forecastArray.slice(0, sliceCount));
-
-  const dailyForecasts: DailyForecast[] = sliceForRange.map((f) => {
-    const iso = normalizeIsoDate(f?.date);
-    const label = formatDateLabel(iso);
-    return {
-      date: iso,
-      day: label.split(',')[0],
-      dateShort: label.replace(/^[^,]+, /, ''),
-      tempMin: Number(f?.temperature_min_c ?? f?.temperature_min ?? f?.tempMin ?? 0),
-      tempMax: Number(f?.temperature_max_c ?? f?.temperature_max ?? f?.tempMax ?? 0),
-      rainChance:
-        Number(f?.precipitation_mm ?? f?.precipitation ?? 0) > 0
-          ? Math.min(100, Math.round(Number(f?.precipitation_mm ?? f?.precipitation ?? 0) * 10))
-          : 0,
-      wind: Math.round(Number(f?.wind_speed_kmh ?? f?.wind ?? 0)),
-      humidity: Math.round(Number(f?.humidity_percent ?? f?.humidity ?? 0)),
-      summary: String(f?.condition ?? 'Unknown'),
-      source: 'Pangu24 AI',
-    };
-  });
-
-  if (dailyForecasts.length === 0 && weddingDay) {
-    const iso = normalizeIsoDate((weddingDay as any)?.date);
-    const label = formatDateLabel(iso);
-    dailyForecasts.push({
-      date: iso,
-      day: label.split(',')[0],
-      dateShort: label.replace(/^[^,]+, /, ''),
-      tempMin: Number((weddingDay as any)?.temperature_min_c ?? (weddingDay as any)?.temperature_min ?? 0),
-      tempMax: Number((weddingDay as any)?.temperature_max_c ?? (weddingDay as any)?.temperature_max ?? 0),
-      rainChance:
-        Number((weddingDay as any)?.precipitation_mm ?? (weddingDay as any)?.precipitation ?? 0) > 0
-          ? Math.min(
-              100,
-              Math.round(Number((weddingDay as any)?.precipitation_mm ?? (weddingDay as any)?.precipitation ?? 0) * 10)
-            )
-          : 0,
-      wind: Math.round(Number((weddingDay as any)?.wind_speed_kmh ?? (weddingDay as any)?.wind ?? 0)),
-      humidity: Math.round(Number((weddingDay as any)?.humidity_percent ?? (weddingDay as any)?.humidity ?? 0)),
-      summary: String((weddingDay as any)?.condition ?? 'Unknown'),
-      source: 'Pangu24 AI',
-    });
-  }
-
-  return {
-    temperature: Number((data as any)?.temperature ?? (weddingDay as any)?.temperature_c ?? (weddingDay as any)?.temperature ?? 0),
-    precipitation: Number((data as any)?.precipitation ?? (weddingDay as any)?.precipitation_mm ?? (weddingDay as any)?.precipitation ?? 0),
-    humidity: Number((data as any)?.humidity ?? (weddingDay as any)?.humidity_percent ?? (weddingDay as any)?.humidity ?? 0),
-    wind: Number((data as any)?.wind ?? (weddingDay as any)?.wind_speed_kmh ?? (weddingDay as any)?.wind ?? 0),
-    condition: String((data as any)?.condition ?? (weddingDay as any)?.condition ?? 'Unknown'),
-    dailyForecasts: dailyForecasts.length > 0 ? dailyForecasts : [createFallbackDaily(date)],
-  };
-}
-
-/**
- * Fetch historical averages from Open-Meteo archive for specific target dates.
- * For each future day (typically 16–90 days ahead), we:
- * - Look at the same calendar date over the last ~10 years
- * - Compute average temperature, humidity, wind
- * - Estimate rain chance as % of years where it rained that day
+ * Historical averages from Open-Meteo archive for specific calendar dates.
+ * Same month/day over the last ~10 years: avg temp, humidity, wind; rain chance from % of rainy years.
  */
 async function getOpenMeteoHistoricalAverages(
   latitude: number,
@@ -134,7 +27,6 @@ async function getOpenMeteoHistoricalAverages(
 ): Promise<DailyForecast[]> {
   const results: DailyForecast[] = [];
 
-  // Helper to zero-pad month/day
   const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`);
 
   for (const isoTarget of targetDates) {
@@ -144,7 +36,7 @@ async function getOpenMeteoHistoricalAverages(
 
     const nowYear = new Date().getFullYear();
     const endYear = nowYear - 1;
-    const startYear = endYear - 9; // last ~10 years
+    const startYear = endYear - 9;
 
     const startIso = `${startYear}-${pad(month)}-${pad(day)}`;
     const endIso = `${endYear}-${pad(month)}-${pad(day)}`;
@@ -197,7 +89,6 @@ async function getOpenMeteoHistoricalAverages(
       }
 
       if (count === 0) {
-        // No matching days found in archive, skip and let caller fall back
         continue;
       }
 
@@ -229,7 +120,6 @@ async function getOpenMeteoHistoricalAverages(
       });
     } catch (err) {
       console.warn('Open-Meteo historical API failed for', isoTarget, err);
-      // On error for this specific day, we just skip and let caller use fallback.
     }
   }
 
@@ -237,10 +127,7 @@ async function getOpenMeteoHistoricalAverages(
 }
 
 /**
- * Main forecast function used by HomePage.
- * For each day in the selected range:
- * - 0–15 days from today: Earth2 AI
- * - 16–90 days from today: Open-Meteo forecast
+ * Forecast for the selected date range using Open-Meteo historical averages for each day.
  */
 export async function getWeatherForecast(
   latitude: number,
@@ -248,11 +135,10 @@ export async function getWeatherForecast(
   startDate: string,
   daysToShow: number = 4
 ): Promise<WeatherData> {
-  // Round coordinates to 1 decimal place for consistency with backend cache keys
   const roundedLat = Math.round(latitude * 10) / 10;
   const roundedLon = Math.round(longitude * 10) / 10;
 
-  console.log('[weatherService] getWeatherForecast', {
+  console.log('[weatherService] getWeatherForecast (Open-Meteo historical)', {
     latitude,
     longitude,
     roundedLat,
@@ -263,7 +149,6 @@ export async function getWeatherForecast(
 
   const start = new Date(startDate + 'T12:00:00');
 
-  // Build date list for the selected range (1–4 days)
   const dates: string[] = [];
   for (let i = 0; i < daysToShow; i++) {
     const d = new Date(start);
@@ -271,77 +156,16 @@ export async function getWeatherForecast(
     dates.push(d.toISOString().slice(0, 10));
   }
 
-  const today = new Date();
-  const daysAhead = dates.map((iso) => {
-    const d = new Date(iso + 'T12:00:00');
-    return Math.floor((d.getTime() - today.getTime()) / MS_PER_DAY);
-  });
+  const openMeteoDays = await getOpenMeteoHistoricalAverages(roundedLat, roundedLon, dates);
 
-  const needEarth2 = daysAhead.some((n) => n <= 15);
-  const needOpenMeteo = daysAhead.some((n) => n >= 16 && n <= 90);
-
-  let earth2Data: WeatherData | null = null;
-  let openMeteoDays: DailyForecast[] = [];
-
-  if (needEarth2) {
-    try {
-      earth2Data = await getEarth2Forecast(roundedLat, roundedLon, startDate, daysToShow);
-    } catch (err) {
-      console.warn('Earth2 API failed:', err);
-      earth2Data = null;
-    }
-  }
-
-  if (needOpenMeteo) {
-    try {
-      const targetForOpenMeteo = dates.filter((_, idx) => {
-        const n = daysAhead[idx];
-        return n >= 16 && n <= 90;
-      });
-      openMeteoDays = await getOpenMeteoHistoricalAverages(roundedLat, roundedLon, targetForOpenMeteo);
-    } catch (err) {
-      console.warn('Open-Meteo historical API failed:', err);
-      let message = 'Unknown Open-Meteo error';
-      if (axios.isAxiosError(err)) {
-        const status = err.response?.status;
-        const statusText = err.response?.statusText;
-        const data = err.response?.data;
-        const dataSnippet =
-          typeof data === 'string'
-            ? data.slice(0, 200)
-            : data && typeof data === 'object'
-            ? JSON.stringify(data).slice(0, 200)
-            : '';
-        message = `status=${status ?? 'n/a'} ${statusText ?? ''} ${dataSnippet || err.message}`;
-      } else if (err instanceof Error) {
-        message = err.message;
-      }
-      // Bubble up so HomePage shows this in the red error text
-      throw new Error(`Open-Meteo historical error: ${message}`);
-    }
-  }
-
-  const combinedDaily: DailyForecast[] = [];
-
-  for (let i = 0; i < daysToShow; i++) {
-    const iso = dates[i];
-    const n = daysAhead[i];
-
-    let chosen: DailyForecast | undefined;
-
-    if (n <= 15 && earth2Data) {
-      chosen = earth2Data.dailyForecasts.find((d) => d.date === iso) ?? earth2Data.dailyForecasts[i];
-    } else if (n >= 16 && n <= 90 && openMeteoDays.length > 0) {
-      chosen = openMeteoDays.find((d) => d.date === iso) ?? openMeteoDays[i];
-    }
-
+  const combinedDaily: DailyForecast[] = dates.map((iso) => {
+    const chosen = openMeteoDays.find((day) => day.date === iso);
     if (!chosen) {
-      console.warn('[weatherService] Falling back for day', { iso, n, hasEarth2: Boolean(earth2Data), openMeteoLen: openMeteoDays.length });
-      chosen = createFallbackDaily(iso);
+      console.warn('[weatherService] No historical data for', iso);
+      return createFallbackDaily(iso);
     }
-
-    combinedDaily.push(chosen);
-  }
+    return chosen;
+  });
 
   const avgTemp =
     combinedDaily.length > 0
@@ -452,13 +276,13 @@ export async function getWeatherAnalysis(
   locationCoords: { lat: number; lng: number } | null | undefined,
   weddingDate: string
 ): Promise<WeatherAnalysisResult> {
-  const { lat, lng } = locationCoords ?? await geocodeAddress(location);
+  const { lat, lng } = locationCoords ?? (await geocodeAddress(location));
 
   let weatherData: WeatherData;
   try {
     weatherData = await getWeatherForecast(lat, lng, weddingDate);
   } catch (err) {
-    console.warn('Earth2 API failed, using fallback:', err);
+    console.warn('Weather forecast failed, using fallback:', err);
     weatherData = createFallbackWeatherData(weddingDate);
   }
 
@@ -467,7 +291,7 @@ export async function getWeatherAnalysis(
   return {
     weatherData,
     suitabilityScore,
-    dataSource: 'Earth2 AI',
-    accuracy: '85-95%',
+    dataSource: 'Open-Meteo Historical Average',
+    accuracy: 'Based on ~10 years of same calendar date',
   };
 }
