@@ -3,13 +3,6 @@ import { ChevronDown, HelpCircle } from 'lucide-react';
 
 const FAQ_ITEMS = [
   {
-    q: 'How does the forecast work for different date ranges?',
-    a: `ShaadiMausam uses Open-Meteo for every location:
-- We use Open-Meteo's historical archive: for your wedding month and day, we average the same calendar date over the last ~10 years (temperature, rain tendency, wind, humidity).
-- When a short-range outlook is available, we can use Open-Meteo forecast data for that window as well.
-All of this uses coordinates for your chosen venue — any city or town works the same way.`,
-  },
-  {
     q: 'What is Open-Meteo?',
     a: `Open-Meteo is a free, open-source weather API that combines data from major meteorological providers. ShaadiMausam uses it for historical patterns and, when applicable, forecasts — no separate proprietary weather backend.`,
   },
