@@ -13,7 +13,6 @@ For “Use Current Location” to show a place name instead of coordinates, enab
 
 ## Weather & AI (Analyze feature)
 
-Add to `.env`:
+Weather is loaded in the browser from **Open-Meteo** (historical archive and forecast when needed). No Earth2/Pangu backend is used.
 
-- `VITE_BACKEND_API_URL` – Earth2 API base (default: `https://shaadimausam.in/api`)
-- `VITE_ANTHROPIC_API_KEY` – Claude API key for AI recommendations (optional; uses defaults if missing)
+AI recommendations are requested from your API: set `VITE_API_BASE_URL` (see `.env.example`, default `https://api.shaadimausam.in`) to a server that implements `POST /recommendations`. Optional keys in `.env` are for your own integrations if you extend the app.

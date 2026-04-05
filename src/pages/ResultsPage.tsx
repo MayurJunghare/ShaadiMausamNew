@@ -55,21 +55,15 @@ export function ResultsPage({ onOpenAuth }: ResultsPageProps) {
   const ratingColor = score >= 80 ? 'text-green-600' : score >= 60 ? 'text-amber-600' : 'text-orange-600';
   const rec = state.recommendations;
 
-  // Build provider flags from each day's API source
-  const providerFlags = new Set<'earth2' | 'openmeteo'>();
-  dailyForecasts.forEach((day) => {
-    const src = day.source;
-    if (src === 'Pangu24 AI') providerFlags.add('earth2');
-    if (src === 'Open-Meteo Forecast' || src === 'Open-Meteo Historical Average') providerFlags.add('openmeteo');
-  });
-
+  const hasForecast = dailyForecasts.some((day) => day.source === 'Open-Meteo Forecast');
+  const hasHistorical = dailyForecasts.some((day) => day.source === 'Open-Meteo Historical Average');
   let dataSourceLabel = '';
-  if (providerFlags.has('earth2') && providerFlags.has('openmeteo')) {
-    dataSourceLabel = 'Pangu24 AI & Open-Meteo';
-  } else if (providerFlags.has('earth2')) {
-    dataSourceLabel = 'Pangu24 AI';
-  } else if (providerFlags.has('openmeteo')) {
-    dataSourceLabel = 'Open-Meteo';
+  if (hasForecast && hasHistorical) {
+    dataSourceLabel = 'Open-Meteo (forecast & historical average)';
+  } else if (hasForecast) {
+    dataSourceLabel = 'Open-Meteo Forecast';
+  } else if (hasHistorical) {
+    dataSourceLabel = 'Open-Meteo Historical Average';
   }
 
   const sectionText = (
