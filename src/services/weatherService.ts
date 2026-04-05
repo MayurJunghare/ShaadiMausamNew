@@ -41,9 +41,73 @@ function formatDateLabel(isoDate: string): string {
   return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
 }
 
+const ARCHIVE_DAILY_FULL =
+  'temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,relative_humidity_2m_mean';
+const ARCHIVE_DAILY_MINIMAL = 'temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max';
+
+/**
+ * One calendar day from the archive API (single-day range — avoids multi-year span limits).
+ */
+async function fetchArchiveDaySample(
+  latitude: number,
+  longitude: number,
+  isoDate: string
+): Promise<{
+  tMax: number;
+  tMin: number;
+  precip: number;
+  wind: number;
+  hum: number | null;
+} | null> {
+  for (const daily of [ARCHIVE_DAILY_FULL, ARCHIVE_DAILY_MINIMAL]) {
+    try {
+      const res = await axios.get(OPEN_METEO_ARCHIVE_BASE, {
+        params: {
+          latitude,
+          longitude,
+          start_date: isoDate,
+          end_date: isoDate,
+          daily,
+          timezone: 'Asia/Kolkata',
+        },
+      });
+      const d = res.data?.daily as
+        | {
+            time?: string[];
+            temperature_2m_max?: (number | null)[];
+            temperature_2m_min?: (number | null)[];
+            precipitation_sum?: (number | null)[];
+            wind_speed_10m_max?: (number | null)[];
+            relative_humidity_2m_mean?: (number | null)[];
+          }
+        | undefined;
+      if (!d?.time?.length) continue;
+      const i = 0;
+      const tMax = d.temperature_2m_max?.[i];
+      const tMin = d.temperature_2m_min?.[i];
+      if (tMax == null || tMin == null || Number.isNaN(Number(tMax)) || Number.isNaN(Number(tMin))) continue;
+      return {
+        tMax: Number(tMax),
+        tMin: Number(tMin),
+        precip: Number(d.precipitation_sum?.[i] ?? 0),
+        wind: Number(d.wind_speed_10m_max?.[i] ?? 0),
+        hum:
+          d.relative_humidity_2m_mean?.[i] != null && !Number.isNaN(Number(d.relative_humidity_2m_mean[i]))
+            ? Number(d.relative_humidity_2m_mean[i])
+            : null,
+      };
+    } catch (err) {
+      if (daily === ARCHIVE_DAILY_MINIMAL) {
+        console.warn('[weatherService] Archive day failed', isoDate, err);
+      }
+    }
+  }
+  return null;
+}
+
 /**
  * Historical averages from Open-Meteo archive for specific calendar dates.
- * Same month/day over the last ~10 years: avg temp, humidity, wind; rain chance from % of rainy years.
+ * Fetches the same month/day for each of the last ~10 years (one API call per year) so we stay within archive limits.
  */
 async function getOpenMeteoHistoricalAverages(
   latitude: number,
@@ -52,77 +116,51 @@ async function getOpenMeteoHistoricalAverages(
 ): Promise<DailyForecast[]> {
   const results: DailyForecast[] = [];
 
+  const nowYear = new Date().getFullYear();
+  const endYear = nowYear - 1;
+  const startYear = endYear - 9;
+  const years: number[] = [];
+  for (let y = startYear; y <= endYear; y++) years.push(y);
+
   for (const isoTarget of targetDates) {
     const parts = parseIsoParts(isoTarget);
     if (!parts) continue;
     const { m: month, d: day } = parts;
 
-    const nowYear = new Date().getFullYear();
-    const endYear = nowYear - 1;
-    const startYear = endYear - 9;
-
-    const startIso = `${startYear}-${pad2(month)}-${pad2(day)}`;
-    const endIso = `${endYear}-${pad2(month)}-${pad2(day)}`;
-
     try {
-      const res = await axios.get(OPEN_METEO_ARCHIVE_BASE, {
-        params: {
-          latitude,
-          longitude,
-          start_date: startIso,
-          end_date: endIso,
-          daily:
-            'temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,relative_humidity_2m_mean',
-          timezone: 'Asia/Kolkata',
-        },
-      });
+      const isoForYear = (y: number) => `${y}-${pad2(month)}-${pad2(day)}`;
+      const samples = await Promise.all(
+        years.map((y) => fetchArchiveDaySample(latitude, longitude, isoForYear(y)))
+      );
+      const valid = samples.filter((s): s is NonNullable<typeof s> => s != null);
 
-      const d = res.data.daily as {
-        time: string[];
-        temperature_2m_max: number[];
-        temperature_2m_min: number[];
-        precipitation_sum: number[];
-        wind_speed_10m_max: number[];
-        relative_humidity_2m_mean: number[];
-      };
+      if (valid.length === 0) {
+        continue;
+      }
 
-      let count = 0;
       let sumTempMax = 0;
       let sumTempMin = 0;
       let sumWind = 0;
       let sumHumidity = 0;
+      let humCount = 0;
       let rainyDays = 0;
 
-      for (let i = 0; i < d.time.length; i++) {
-        const tStr = d.time[i];
-        if (!tStr || tStr.length < 10) continue;
-        const tMonth = Number(tStr.slice(5, 7));
-        const tDay = Number(tStr.slice(8, 10));
-        if (tMonth !== month || tDay !== day) continue;
-
-        const tMax = d.temperature_2m_max[i];
-        const tMin = d.temperature_2m_min[i];
-        const precip = d.precipitation_sum[i];
-        const wind = d.wind_speed_10m_max[i];
-        const hum = d.relative_humidity_2m_mean[i];
-        if (tMax == null || tMin == null || Number.isNaN(Number(tMax)) || Number.isNaN(Number(tMin))) continue;
-
-        sumTempMax += Number(tMax);
-        sumTempMin += Number(tMin);
-        sumWind += wind != null ? Number(wind) : 0;
-        sumHumidity += hum != null ? Number(hum) : 60;
-        if (precip != null && Number(precip) > 0.1) rainyDays += 1;
-        count += 1;
+      for (const s of valid) {
+        sumTempMax += s.tMax;
+        sumTempMin += s.tMin;
+        sumWind += s.wind;
+        if (s.hum != null) {
+          sumHumidity += s.hum;
+          humCount += 1;
+        }
+        if (s.precip > 0.1) rainyDays += 1;
       }
 
-      if (count === 0) {
-        continue;
-      }
-
+      const count = valid.length;
       const avgTempMax = sumTempMax / count;
       const avgTempMin = sumTempMin / count;
       const avgWind = sumWind / count;
-      const avgHumidity = sumHumidity / count;
+      const avgHumidity = humCount > 0 ? sumHumidity / humCount : 60;
       const rainChance = Math.round((rainyDays / count) * 100);
 
       const label = formatDateLabel(isoTarget);
