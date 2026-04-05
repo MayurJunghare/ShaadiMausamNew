@@ -181,13 +181,27 @@ export async function getRecommendations(
     const response = await fetch(`${baseUrl}/recommendations`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ weatherData, location, weddingDate, suitabilityScore })
+      body: JSON.stringify({ weatherData, location, weddingDate, suitabilityScore }),
     });
-    
-    if (!response.ok) throw new Error('Failed to get recommendations');
-    
-    const data = await response.json();
-    return JSON.parse(data.recommendations);
+
+    if (!response.ok) {
+      const errText = await response.text().catch(() => '');
+      throw new Error(`Recommendations HTTP ${response.status}: ${errText.slice(0, 200)}`);
+    }
+
+    const data = (await response.json()) as Record<string, unknown>;
+    // Backend may return recommendations as a JSON string or as a parsed object
+    let raw: unknown = data.recommendations;
+    if (raw == null && data.personalHygiene != null) {
+      raw = data;
+    }
+    if (typeof raw === 'string') {
+      return parseRecommendations(raw);
+    }
+    if (raw && typeof raw === 'object') {
+      return parseRecommendations(JSON.stringify(raw));
+    }
+    throw new Error('Invalid recommendations payload from server');
   } catch (error) {
     console.error('Recommendations failed:', error);
     return DEFAULT_RECOMMENDATIONS;

@@ -10,9 +10,34 @@ import type {
 import { geocodeAddress } from './geocodeService';
 
 const OPEN_METEO_ARCHIVE_BASE = 'https://archive-api.open-meteo.com/v1/archive';
+const OPEN_METEO_FORECAST_BASE = 'https://api.open-meteo.com/v1/forecast';
+
+function pad2(n: number): string {
+  return n < 10 ? `0${n}` : `${n}`;
+}
+
+/** Parse YYYY-MM-DD as calendar date (no UTC drift). */
+function parseIsoParts(iso: string): { y: number; m: number; d: number } | null {
+  const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return null;
+  return { y: Number(m[1]), m: Number(m[2]), d: Number(m[3]) };
+}
+
+/** Add days to an ISO date using local calendar math (stable worldwide). */
+function addDaysToIso(iso: string, days: number): string {
+  const p = parseIsoParts(iso);
+  if (!p) return iso;
+  const dt = new Date(p.y, p.m - 1, p.d + days);
+  return `${dt.getFullYear()}-${pad2(dt.getMonth() + 1)}-${pad2(dt.getDate())}`;
+}
 
 function formatDateLabel(isoDate: string): string {
-  const d = new Date(isoDate + 'T12:00:00');
+  const p = parseIsoParts(isoDate);
+  if (!p) {
+    const d = new Date(isoDate + 'T12:00:00');
+    return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+  }
+  const d = new Date(p.y, p.m - 1, p.d, 12, 0, 0, 0);
   return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
 }
 
@@ -27,19 +52,17 @@ async function getOpenMeteoHistoricalAverages(
 ): Promise<DailyForecast[]> {
   const results: DailyForecast[] = [];
 
-  const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`);
-
   for (const isoTarget of targetDates) {
-    const target = new Date(isoTarget + 'T12:00:00');
-    const month = target.getMonth() + 1;
-    const day = target.getDate();
+    const parts = parseIsoParts(isoTarget);
+    if (!parts) continue;
+    const { m: month, d: day } = parts;
 
     const nowYear = new Date().getFullYear();
     const endYear = nowYear - 1;
     const startYear = endYear - 9;
 
-    const startIso = `${startYear}-${pad(month)}-${pad(day)}`;
-    const endIso = `${endYear}-${pad(month)}-${pad(day)}`;
+    const startIso = `${startYear}-${pad2(month)}-${pad2(day)}`;
+    const endIso = `${endYear}-${pad2(month)}-${pad2(day)}`;
 
     try {
       const res = await axios.get(OPEN_METEO_ARCHIVE_BASE, {
@@ -71,20 +94,24 @@ async function getOpenMeteoHistoricalAverages(
       let rainyDays = 0;
 
       for (let i = 0; i < d.time.length; i++) {
-        const dt = new Date(d.time[i] + 'T12:00:00');
-        if (dt.getMonth() + 1 !== month || dt.getDate() !== day) continue;
+        const tStr = d.time[i];
+        if (!tStr || tStr.length < 10) continue;
+        const tMonth = Number(tStr.slice(5, 7));
+        const tDay = Number(tStr.slice(8, 10));
+        if (tMonth !== month || tDay !== day) continue;
 
         const tMax = d.temperature_2m_max[i];
         const tMin = d.temperature_2m_min[i];
         const precip = d.precipitation_sum[i];
         const wind = d.wind_speed_10m_max[i];
         const hum = d.relative_humidity_2m_mean[i];
+        if (tMax == null || tMin == null || Number.isNaN(Number(tMax)) || Number.isNaN(Number(tMin))) continue;
 
-        sumTempMax += tMax;
-        sumTempMin += tMin;
-        sumWind += wind;
-        sumHumidity += hum;
-        if (precip > 0.1) rainyDays += 1;
+        sumTempMax += Number(tMax);
+        sumTempMin += Number(tMin);
+        sumWind += wind != null ? Number(wind) : 0;
+        sumHumidity += hum != null ? Number(hum) : 60;
+        if (precip != null && Number(precip) > 0.1) rainyDays += 1;
         count += 1;
       }
 
@@ -127,6 +154,84 @@ async function getOpenMeteoHistoricalAverages(
 }
 
 /**
+ * Short-range forecast from Open-Meteo (fills gaps when archive has no rows for a date).
+ */
+async function getOpenMeteoForecastBatch(
+  latitude: number,
+  longitude: number,
+  targetDates: string[]
+): Promise<DailyForecast[]> {
+  if (targetDates.length === 0) return [];
+  const sorted = [...targetDates].sort();
+  const start = sorted[0];
+  const end = sorted[sorted.length - 1];
+
+  try {
+    const res = await axios.get(OPEN_METEO_FORECAST_BASE, {
+      params: {
+        latitude,
+        longitude,
+        daily:
+          'temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max,relative_humidity_2m_mean',
+        start_date: start,
+        end_date: end,
+        timezone: 'Asia/Kolkata',
+      },
+    });
+
+    const d = res.data.daily as {
+      time: string[];
+      temperature_2m_max: number[];
+      temperature_2m_min: number[];
+      precipitation_probability_max: number[];
+      wind_speed_10m_max: number[];
+      relative_humidity_2m_mean: number[];
+    };
+
+    const out: DailyForecast[] = [];
+    for (let i = 0; i < d.time.length; i++) {
+      const iso = d.time[i].slice(0, 10);
+      if (!targetDates.includes(iso)) continue;
+
+      const tMax = d.temperature_2m_max[i];
+      const tMin = d.temperature_2m_min[i];
+      const pProb = d.precipitation_probability_max[i];
+      const wind = d.wind_speed_10m_max[i];
+      const hum = d.relative_humidity_2m_mean[i];
+      if (tMax == null || tMin == null) continue;
+
+      const rainChance = Math.min(100, Math.round(Number(pProb ?? 0)));
+      const avgTempMax = Number(tMax);
+      const avgTempMin = Number(tMin);
+      const label = formatDateLabel(iso);
+
+      let summary = 'Pleasant';
+      if (rainChance >= 60) summary = 'Rainy';
+      else if (rainChance >= 30) summary = 'Partly cloudy';
+      else if (avgTempMax >= 35) summary = 'Hot & sunny';
+      else if (avgTempMax >= 28) summary = 'Sunny';
+
+      out.push({
+        date: iso,
+        day: label.split(',')[0],
+        dateShort: label.replace(/^[^,]+, /, ''),
+        tempMin: Math.round(avgTempMin * 10) / 10,
+        tempMax: Math.round(avgTempMax * 10) / 10,
+        rainChance,
+        wind: Math.round(Number(wind ?? 0)),
+        humidity: Math.round(Number(hum ?? 60)),
+        summary,
+        source: 'Open-Meteo Forecast',
+      });
+    }
+    return out;
+  } catch (err) {
+    console.warn('[weatherService] Open-Meteo forecast batch failed', err);
+    return [];
+  }
+}
+
+/**
  * Forecast for the selected date range using Open-Meteo historical averages for each day.
  */
 export async function getWeatherForecast(
@@ -138,7 +243,7 @@ export async function getWeatherForecast(
   const roundedLat = Math.round(latitude * 10) / 10;
   const roundedLon = Math.round(longitude * 10) / 10;
 
-  console.log('[weatherService] getWeatherForecast (Open-Meteo historical)', {
+  console.log('[weatherService] getWeatherForecast (Open-Meteo historical + forecast fallback)', {
     latitude,
     longitude,
     roundedLat,
@@ -147,21 +252,26 @@ export async function getWeatherForecast(
     daysToShow,
   });
 
-  const start = new Date(startDate + 'T12:00:00');
-
   const dates: string[] = [];
   for (let i = 0; i < daysToShow; i++) {
-    const d = new Date(start);
-    d.setDate(start.getDate() + i);
-    dates.push(d.toISOString().slice(0, 10));
+    dates.push(addDaysToIso(startDate, i));
   }
 
-  const openMeteoDays = await getOpenMeteoHistoricalAverages(roundedLat, roundedLon, dates);
+  const historicalDays = await getOpenMeteoHistoricalAverages(roundedLat, roundedLon, dates);
+  const byDate = new Map(historicalDays.map((day) => [day.date, day]));
+  const missing = dates.filter((iso) => !byDate.has(iso));
+
+  if (missing.length > 0) {
+    const forecastDays = await getOpenMeteoForecastBatch(roundedLat, roundedLon, missing);
+    for (const fd of forecastDays) {
+      byDate.set(fd.date, fd);
+    }
+  }
 
   const combinedDaily: DailyForecast[] = dates.map((iso) => {
-    const chosen = openMeteoDays.find((day) => day.date === iso);
+    const chosen = byDate.get(iso);
     if (!chosen) {
-      console.warn('[weatherService] No historical data for', iso);
+      console.warn('[weatherService] No Open-Meteo data for', iso);
       return createFallbackDaily(iso);
     }
     return chosen;
@@ -244,15 +354,11 @@ function createFallbackDaily(date: string): DailyForecast {
 }
 
 function createFallbackWeatherData(date: string, daysToShow: number = 4): WeatherData {
-  const base = new Date(date + 'T12:00:00');
   const days: DailyForecast[] = [];
   const totalDays = Math.max(1, Math.min(4, Math.floor(daysToShow) || 1));
 
   for (let i = 0; i < totalDays; i++) {
-    const d = new Date(base);
-    d.setDate(base.getDate() + i);
-    const iso = d.toISOString().slice(0, 10);
-    days.push(createFallbackDaily(iso));
+    days.push(createFallbackDaily(addDaysToIso(date, i)));
   }
 
   return {
